@@ -12,6 +12,7 @@ spec = Gem::Specification.new do |s|
   s.files = %w(
 bin/moment
 lib/moment/version.rb
+lib/moment/keys.rb
 lib/moment.rb
   )
   s.require_paths << 'lib'
@@ -23,5 +24,12 @@ lib/moment.rb
   s.add_development_dependency('rake')
   s.add_development_dependency('rdoc')
   s.add_development_dependency('aruba')
+  s.add_development_dependency('rspec')  
+  s.add_development_dependency('guard')
+  s.add_development_dependency('rb-fsevent')
+  s.add_development_dependency('guard-cucumber')  
+  s.add_development_dependency('guard-rspec')    
   s.add_runtime_dependency('gli','2.5.6')
+  s.add_runtime_dependency('aws-s3')
+  s.add_runtime_dependency('highline')  
 end

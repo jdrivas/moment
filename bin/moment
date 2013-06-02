@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require 'gli'
+require 'highline/import'
 begin # XXX: Remove this begin/rescue before distributing your app
 require 'moment'
 rescue LoadError
@@ -11,28 +12,66 @@ end
 
 include GLI::App
 
-program_desc 'Describe your application here'
+program_desc 'Manage a static website hosted on Amazon AWS S3.'
 
 version Moment::VERSION
 
-desc 'Describe some switch here'
-switch [:s,:switch]
+desc "Manage AWS credentials. Commands can be 'set' or 'show'. "
+arg_name "command"
+command :credentials do |c|
+  c.action do |gobal_options, options, args|
 
-desc 'Describe some flag here'
-default_value 'the default'
-arg_name 'The name of the argument'
-flag [:f,:flagname]
+    # Assuming only a single command
+    case args[0]
+    when "set"
+      puts "Your keys will be stored in the file: #{Moment::Keys.install_filename}"
+      puts "You should put this file name in your .gitignore as well."
+      puts "DON'T STORE AWS CREDENTIALS IN YOUR GIT OR OTHER REPOSITORY."
+      access_key_id = ask("AWS access key id: ")
+      secret_key = ask("AWS secret key: ")
+      overwrite_keys = File.exist?(Moment::Keys.install_filename) && agree("#{Moment::Keys.install_filename} exists. Overwrite? ")
+      Moment::Keys.new(access_key_id, secret_key).install if overwrite_keys || !File.exist?(Moment::Keys.install_filename)
+    when "show"
+      keys = Moment::Keys.installed
+      if keys.nil?
+        puts "Couldn't find installed credentials"
+      else
+        puts "Found credentials:"
+        puts "AWS ACCESS KEY ID: \"#{keys.access_key_id}\""
+        puts "AWS SECRET KEY: \"#{keys.secret_key}\""
+      end
+    else
+      raise "invalid credentials command: #{args[0]}"
+    end
+  end  
+end
 
-desc 'Describe deploy here'
-arg_name 'Describe arguments to deploy here'
+desc 'Use git repo to find files to deploy [default]'
+switch [:g,:git_files]
+
+# desc 'Describe some flag here'
+# default_value 'the default'
+# arg_name 'The name of the argument'
+# flag [:f,:flagname]
+desc 'Show the list of files to deploy'
+command :list do |c|
+  c.action do |global_options, options, args|
+    puts "list command run"
+  end
+end
+
+desc 'Deploy the static site to an evironment. An environment can be one of "production" or "staging"'
+arg_name '<environment>'
 command :deploy do |c|
-  c.desc 'Describe a switch to deploy'
-  c.switch :s
+  # c.desc 'Deploy from the local directory as opposed to the default git'
+  # c.switch :l
 
-  c.desc 'Describe a flag to deploy'
-  c.default_value 'default'
-  c.flag :f
+  # c.desc 'Describe a flag to deploy'
+  # c.default_value 'default'
+  # c.flag :f
   c.action do |global_options,options,args|
+    puts "calling deploy with: "
+    puts "\targs: #{args}"
 
     # Your command logic here
      
