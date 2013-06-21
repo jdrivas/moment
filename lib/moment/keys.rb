@@ -10,11 +10,9 @@ module Moment
     attr_accessor :access_key_id, :secret_key
 
     # Get credentials that are installed
-    # - in local a yaml file
+    # in local a yaml file.
     def self.installed
       key_hash = YAML.load_file(Keys.install_filename)
-      puts "got keys back from: #{Keys.install_filename}"
-      puts "they are: key_hash"
       Keys.new(key_hash[ACCESS_KEY], key_hash[SECRET_KEY])
     end 
 
