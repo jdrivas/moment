@@ -2,8 +2,6 @@
 require 'gli'
 require 'highline/import'
 
-require 'moment'
-
 begin # XXX: Remove this begin/rescue before distributing your app
 require 'moment'
 rescue LoadError
@@ -66,6 +64,7 @@ desc 'Mange files that make up the site.'
 arg_name "list"
 command :files do |c|
   c.desc "directory to use to use for files"
+  c.default_value :site
   c.flag :d, :directory
   c.action do |global_options, options, args|
     puts "options: #{options}"
@@ -75,6 +74,25 @@ command :files do |c|
       puts Moment::Files.get_file_list options[:directory]
     else 
       raise "invalid files command: #{args[0]}"
+    end
+  end
+end
+
+available_template_engines = %w(simple_php)
+desc 'Build the site using a template plugin.'
+command :build do |c|
+  c.desc "Use the specificed template engine"
+  c.default_value :none
+  c.flag :t, :template
+
+  c.desc "Just list the available template engines (don't build)."
+  c.switch :l, :list
+
+  c.action do |global_options, options, args|
+    if options[:list]
+      puts "Available templating engines: #{available_template_engines.join(',')}"
+    else
+      Moment::SimplePhp.build(File.expand_path("./site"))
     end
   end
 end
@@ -90,23 +108,20 @@ desc 'Deploy the static site to an evironment. An environment can be one of "pro
 arg_name '<environment>'
 command :deploy do |c|
   c.desc 'Deploy from the local directory as opposed to the default git repo.'
-  c.switch :l
+  c.switch :l, :local
 
-  # c.desc 'Describe a flag to deploy'
-  # c.default_value 'default'
-  # c.flag :f
   c.action do |global_options,options,args|
     puts "calling deploy with: "
+    puts "global_options: #{global_options}"
+    puts "options: #{options}"
     puts "\targs: #{args}"
-
-    # Your command logic here
-     
-    # If you have any errors, just raise them
-    # raise "that command made no sense"
 
     puts "deploy command ran"
   end
 end
+
+
+
 
 pre do |global,command,options,args|
   # Pre logic here
