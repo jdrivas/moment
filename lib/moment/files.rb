@@ -6,11 +6,10 @@ module Moment
       Dir.chdir(directory_name) do
         files = get_files(".")
       end
-      files
+      files.each {|f| f.gsub!(/^\.\//,"")}  # remove any leading ./
     end
 
     def self.get_files(dir)
-      # puts "looking in directory: '#{dir}'"
       files = []
       Dir.foreach(dir) do |file|
         next if file.match(/\.{1,2}$/)  # ignore '.' and '..'

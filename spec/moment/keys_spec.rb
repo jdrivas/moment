@@ -1,7 +1,10 @@
 require 'spec_helper'
 require 'moment'
+require 'fileutils'
 
 describe Moment::Keys do
+  before {FileUtils.cp(".aws_credentials", ".aws_credentials.orig")}
+  after {FileUtils.mv(".aws_credentials.orig", ".aws_credentials")}
   let(:access_key_id){"access_id"}
   let(:secret_key){"secret_key"}
   let(:new_key){Moment::Keys.new(access_key_id, secret_key)}

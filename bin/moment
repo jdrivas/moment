@@ -33,7 +33,7 @@ command :credentials do |c|
     # Process credential commands
     case args[0]
     when "set"
-      puts "Your keys will be stored in the file: #{Pathname.new(Moment::Keys.install_filename).expand_pa}"
+      puts "Your keys will be stored in the file: #{Pathname.new(Moment::Keys.install_filename).expand_path}"
       puts "You should put this file name in your .gitignore as well."
       puts "DON'T STORE AWS CREDENTIALS IN YOUR GIT OR OTHER REPOSITORY."
       access_key_id = ask("AWS access key id: ")
@@ -64,11 +64,9 @@ desc 'Mange files that make up the site.'
 arg_name "list"
 command :files do |c|
   c.desc "directory to use to use for files"
-  c.default_value :site
+  c.default_value "site"
   c.flag :d, :directory
   c.action do |global_options, options, args|
-    puts "options: #{options}"
-    puts "files command run"
     case args[0]
     when "list"
       puts Moment::Files.get_file_list options[:directory]
@@ -104,23 +102,40 @@ command :site do |c|
   end
 end
 
-desc 'Deploy the static site to an evironment. An environment can be one of "production" or "staging"'
-arg_name '<environment>'
+desc 'Deploy the static site to an evironment. An environment can be one of "production" or "staging". Defaults to "staging"'
+arg_name '[<environment>]'
 command :deploy do |c|
-  c.desc 'Deploy from the local directory as opposed to the default git repo.'
-  c.switch :l, :local
+
+  c.desc 'Do a dry run without executing actions.'
+  c.switch :n, :dry_run
+
+  c.desc 'Deploy from the local directory as opposed to the default git repo (default = site.)'
+  c.default_value "site"
+  c.flag :l, :local
+
+  c.desc 'Deploy to endpoint (e.g. AWS bucket name)'
+  c.flag :e, :endpoint
 
   c.action do |global_options,options,args|
-    puts "calling deploy with: "
-    puts "global_options: #{global_options}"
-    puts "options: #{options}"
-    puts "\targs: #{args}"
 
-    puts "deploy command ran"
+    credentials = Moment::Keys.installed
+    endpoint = options[:endpoint]
+    source = File.expand_path options[:local]
+    files = Moment::Files.get_file_list source
+
+    unless options[:dry_run]
+      static_service = Moment::S3.new(credentials)
+      static_service.put_files(endpoint, source, files)
+    else
+      puts "Update endpoint: Amazon S3 bucket \"#{endpoint}\"."
+      puts "From source: \"#{source}\"."
+      puts "Updates are:"
+      files.each do |f|
+        puts "- #{File.expand_path(f,source)} -> #{endpoint}: #{f}"
+      end
+    end
   end
 end
-
-
 
 
 pre do |global,command,options,args|

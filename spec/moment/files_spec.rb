@@ -191,7 +191,6 @@ end
 
 describe Moment::Files do 
 
-
   before {FileTree.new(files, TEST_DIR_NAME).build_tree}
   after {rm_files files}
 
