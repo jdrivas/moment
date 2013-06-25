@@ -17,8 +17,43 @@ program_desc 'Manage a static website hosted on Amazon AWS S3.'
 
 version Moment::VERSION
 
-desc "Noisly describe what's going on."
-switch [:v, :verbose]
+##
+# Global flags/switches
+##
+desc "Directory which contains the static site files."
+arg_name :site_dir
+default_value "site"
+flag [:d, :directory]
+
+
+# desc "Noisly describe what's going on."
+# switch [:v, :verbose]
+
+desc 'DEBUG COMMAND'
+command :dump do |c|
+  c.action do |global_options, options, args|
+    puts Moment:config.configuration.inspect
+    puts "Global options: #{global_options.inspect}"
+    puts "Options: #{options.inspect} "
+    puts "Args: #{args.inspect}"
+  end  
+end
+
+
+##
+# Commands
+##
+desc 'Create a commented yaml configuration file. You can do this at anytime.'
+command :init do |c|
+  c.desc "Force overwritting an exsting confugration file."
+  c.default_value false
+  c.switch [:f, :force]
+
+  c.action do |global_options, options, args|
+    Moment::create_config(options[:force])
+  end
+end
+
 
 desc "Manage AWS credentials."
 long_desc  """
@@ -63,15 +98,17 @@ end
 desc 'Mange files that make up the site.'
 arg_name "list"
 command :files do |c|
-  c.desc "directory to use to use for files"
-  c.default_value "site"
-  c.flag :d, :directory
+  # c.desc "directory to use to use for files."
+  # c.arg_name :site_dir
+  # c.default_value "site"
+  # c.flag :d, :directory
   c.action do |global_options, options, args|
     case args[0]
     when "list"
-      puts Moment::Files.get_file_list options[:directory]
+      puts "looking in directory: \"#{global_options[:directory]}\""
+      puts Moment::Files.get_file_list global_options[:directory]
     else 
-      raise "invalid files command: #{args[0]}"
+       raise GLI::BadCommandLine.new("bad files command.")
     end
   end
 end
@@ -80,7 +117,7 @@ available_template_engines = %w(simple_php)
 desc 'Build the site using a template plugin.'
 command :build do |c|
   c.desc "Use the specificed template engine"
-  c.default_value :none
+  c.default_value :simple_php
   c.flag :t, :template
 
   c.desc "Just list the available template engines (don't build)."
@@ -90,7 +127,7 @@ command :build do |c|
     if options[:list]
       puts "Available templating engines: #{available_template_engines.join(',')}"
     else
-      Moment::SimplePhp.build(File.expand_path("./site"))
+      Moment::SimplePhp.build(File.expand_path(global_options[:directory]))
     end
   end
 end
@@ -102,37 +139,63 @@ command :site do |c|
   end
 end
 
-desc 'Deploy the static site to an evironment. An environment can be one of "production" or "staging". Defaults to "staging"'
-arg_name '[<environment>]'
+desc 'Deploy the static site to an evironment. For example "staging" or "production".'
+long_desc '''
+Deploys the site to an AWS/S3 bucket. Buckets can be asssociated with 
+an environment in the configuration file. If an environment is not specified, then 
+a bucket can be specified on the command line with an options (-e, --endpoint).
+Environments are defined in the yaml configuration file: .moment.yaml
+The syntax is: 
+  :environments {
+    production: production_bucket_name
+    staging: staging_bucket_name
+    other: other_bucket_name
+  }
+'''
+arg_name 'environment'
+default_value :staging
 command :deploy do |c|
 
   c.desc 'Do a dry run without executing actions.'
   c.switch :n, :dry_run
 
-  c.desc 'Deploy from the local directory as opposed to the default git repo (default = site.)'
-  c.default_value "site"
-  c.flag :l, :local
+  c.desc "Deploy from a git repository rather than the local directory."
+  c.switch :g, :git
 
   c.desc 'Deploy to endpoint (e.g. AWS bucket name)'
+  c.default_value "moment_site"
   c.flag :e, :endpoint
+
+  c.desc 'List avaialble environments'
+  c.switch :l, :environments
 
   c.action do |global_options,options,args|
 
     credentials = Moment::Keys.installed
-    endpoint = options[:endpoint]
-    source = File.expand_path options[:local]
+    source = File.expand_path global_options[:directory]
     files = Moment::Files.get_file_list source
 
-    unless options[:dry_run]
-      static_service = Moment::S3.new(credentials)
-      static_service.put_files(endpoint, source, files)
-    else
+    endpoint = options[:endpoint]
+    endpoint = global_options[:environments][args[0]] if(args[0])
+    raise GLI::BadCommandLine.new("No endpoint is defined for environment: \"#{args[0]}\".") unless endpoint
+
+    if options[:environments]
+      puts "Deploy environments: "
+      if global_options[:environments]
+        global_options[:environments].each {|k,v| puts "- #{k}: #{v}"}
+      else
+        puts "No environments defined."
+      end
+    elsif options[:dry_run]
       puts "Update endpoint: Amazon S3 bucket \"#{endpoint}\"."
       puts "From source: \"#{source}\"."
       puts "Updates are:"
       files.each do |f|
         puts "- #{File.expand_path(f,source)} -> #{endpoint}: #{f}"
       end
+    else
+      static_service = Moment::S3.new(credentials)
+      static_service.put_files(endpoint, source, files)
     end
   end
 end
@@ -144,6 +207,15 @@ pre do |global,command,options,args|
   # chosen command
   # Use skips_pre before a command to skip this block
   # on that command only
+
+  # TODO: This works, but it's dangerous, because
+  # of the goofy double entries in the option parsing.
+  # Because GLI chooses to have both short and long value
+  # in the option hash, we can set one but not the other 
+  # in the configuraiton file. So .. we should probably
+  # go searching into each global and options command
+  # in here to make sure that we're not out of phase.
+  global.merge!(Moment.config.configuration) unless command.name == "init"
   true
 end
 
@@ -154,6 +226,14 @@ post do |global,command,options,args|
 end
 
 on_error do |exception|
+  case exception
+  when GLI::BadCommandLine
+  when ArgumentError
+  else
+    puts "CLASS: #{exception.class}"
+    puts "Found an exception: #{exception.inspect}"
+    exception.backtrace.each {|l| puts "\t#{l}"}
+  end
   # Error logic here
   # return false to skip default error handling
   true

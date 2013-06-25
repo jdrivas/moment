@@ -17,14 +17,13 @@ module Moment
     end
 
     def put_files(bucket_name, source_directory, file_list)
-      puts "setting "
+
       if connection.nil?
         puts "******* Failed to connect to to S3"
         return
       end
 
       bucket = AWS::S3::Bucket.find(bucket_name)
-
       unless bucket.nil?
         puts "Updating to: #{bucket.name}"
         file_list.each do |f|
