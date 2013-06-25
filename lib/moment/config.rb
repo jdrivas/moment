@@ -52,6 +52,10 @@ module Moment
 # site:
 #:directory: my_site
 #
+# And the template engine
+#:build: {
+#  template_type: simple_php
+#}
 EOS
 
 end
