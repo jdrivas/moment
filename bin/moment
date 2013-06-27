@@ -17,7 +17,7 @@ program_desc 'Manage a static website hosted on Amazon AWS S3.'
 
 version Moment::VERSION
 
-config_file File.expand_path(".", ".gli_config")
+# config_file File.expand_path(".", ".gli_config")
 
 ##
 # Global flags/switches
@@ -153,12 +153,12 @@ command :build do |c|
   end
 end
 
-desc 'Manage the AWS S3 site configuration'
-command :site do |c|
-  c.action do |global_options, options, args|
-    puts "site command run"
-  end
-end
+ # desc 'Manage the AWS S3 site configuration'
+# command :site do |c|
+#   c.action do |global_options, options, args|
+#     puts "site command run"
+#   end
+# end
 
 desc 'Deploy the static site to an evironment. For example "staging" or "production".'
 long_desc """
@@ -193,7 +193,13 @@ command :deploy do |c|
     files = Moment::Files.get_file_list source
 
     endpoint = options[:endpoint]
-    endpoint = global_options[:environments][args[0]] if(args[0])
+    if args[0]
+      begin
+        endpoint = global_options[:environments][args[0]]
+      rescue NoMethodError
+        raise GLI::BadCommandLine.new("No environments defined, can't find \"#{args[0]}\".")
+      end
+    end
     raise GLI::BadCommandLine.new("No endpoint is defined for environment: \"#{args[0]}\".") unless endpoint
 
     if options[:environments]
@@ -210,7 +216,7 @@ command :deploy do |c|
       files.each do |f|
         puts "- #{File.expand_path(f,source)} -> #{endpoint}: #{f}"
       end
-    else
+    else # Actually do a deploy
       static_service = Moment::S3.new(credentials)
       static_service.put_files(endpoint, source, files)
     end
@@ -225,12 +231,23 @@ pre do |global,command,options,args|
   # on that command only
 
   # TODO: This works, but it's dangerous, because
-  # of the goofy double entries in the option parsing.
-  # Because GLI chooses to have both short and long value
+  # of the goofy double entries in the option parsing:
+  # because GLI chooses to have both short and long value
   # in the option hash, we can miss setting one or the other
   # in the configuration file. So .. we should probably
   # go searching into each global and options command
   # in here to make sure that we're not out of phase.
+  # An alternative is to hack GLI's configuration code
+  # to enable obtaining saved state from the configuration file
+  # that are not options. The primary example here is a collection
+  # of evnrionment endpoint pairs.
+  # Another alternative is to create commands that add/remove elements
+  # like these and store them somewhere else (another file?).
+  # This has a more git like flavor (think remotes), but seems like
+  # more than we actually need.
+
+  # note that we don't want to go looking for the config file prior to
+  # an init command
   global.merge!(Moment.config.configuration) unless command.name == "init"
   true
 end
