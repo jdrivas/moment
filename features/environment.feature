@@ -39,6 +39,7 @@ Feature: Supports named environments.
       | `moment deploy -ng staging`   | stdout | "git@github.com:jdrivas/moment-test-site.git"   |
       | `moment deploy -ng staging`   | stdout | "cuke_branch"                                   |
       | `moment deploy -ne cuke_end`  | stdout | "cuke_end"                                      |
+      | `moment deploy -l`             | stdout | "staging"                                       |
 
   Scenario Outline: Pick up defaults even with an environment in .moment.yaml file.
     Given a directory named "site"
