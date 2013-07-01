@@ -210,10 +210,11 @@ command :deploy do |c|
     files = []
     if options[:git] 
       repo = environment[:repo]
+      temp_repo_clone = "/tmp/moment.git.clone"
       raise GLI::BadCommandLine.new("No source git repo.") if repo.nil?
       branch = environment[:branch]
       branch ||= args[0]
-      source = "/tmp/moment.git.clone"
+      source = temp_repo_clone
     else
       source = File.expand_path global_options[:directory]
       files = Moment::Files.get_file_list source
@@ -227,9 +228,9 @@ command :deploy do |c|
     else 
       # Deploy from a git repo.
       if options[:git]
-        puts "Cloning: #{git.repo} into #{source}"
-        git = Moment::Git.new(environments[:repo])
-        git.clone(source, environments[:branch])
+        puts "Cloning: #{repo} into #{source}"
+        git = Moment::Git.new(repo)
+        git.clone(source, branch)
         files = Moment::Files.get_file_list source
       end
 
@@ -237,7 +238,7 @@ command :deploy do |c|
       static_service = Moment::S3.new(credentials)
       static_service.put_files(endpoint, source, files)
 
-      FileUtils.rm_rf temp_repo if File.exist?(temp_repo)
+      FileUtils.rm_rf temp_repo_clone if File.exist?(temp_repo_clone)
     end
   end
 end

@@ -1,15 +1,13 @@
 module Moment
   class Git
-    attr accessor :repo
+    attr_accessor :repo
 
-    def nitialize(repo_name)
+    def initialize(repo_name)
       @repo = repo_name
     end
 
-    def clone(dir)
-      Dir.cwd("dir") do 
-        system "git clone #{self.repo}"
-      end
+    def clone(name, branch)
+      system "git clone -b #{branch} #{self.repo} #{name}"
     end
   end
 end
