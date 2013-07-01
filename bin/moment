@@ -120,7 +120,7 @@ Template plugins define a templating system, which is of-course plubin dependent
 A template plugin can be set up and configured through the configuration file.
 If a template plugin is specified on the command line it over-rides the configuration
 file.
-It not plugin is specified either on the comand line or through the configuration file
+It no plugin is specified either on the comand line or through the configuration file
 no templating occurs and the build is essentially a no-op.
 '''
 command :build do |c|
@@ -170,7 +170,6 @@ file from the init command for an exmaple.
 """
 
 arg_name 'environment'
-default_value :staging
 command :deploy do |c|
 
   c.desc 'Do a dry run without executing actions.'
@@ -184,41 +183,61 @@ command :deploy do |c|
   c.flag :e, :endpoint
 
   c.desc 'List avaialble environments'
-  c.switch :l, :environments
+  c.switch :l, :list_environments
 
   c.action do |global_options,options,args|
 
-    credentials = Moment::Keys.installed
-    source = File.expand_path global_options[:directory]
-    files = Moment::Files.get_file_list source
-
-    endpoint = options[:endpoint]
-    if args[0]
-      begin
-        endpoint = global_options[:environments][args[0]]
-      rescue NoMethodError
-        raise GLI::BadCommandLine.new("No environments defined, can't find \"#{args[0]}\".")
-      end
+    # Need an environment if we've asked for one, or if we're getting our files from a git repo.
+    environments = global_options[:environments]
+    environment = nil
+    if args[0] || options[:git] || options[:list_environments]
+      raise GLI::BadCommandLine.new("Didn't specify an environment.") if args[0].nil?
+      raise GLI::BadCommandLine.new("No environments defined, can't find \"#{args[0]}\"") if environments.nil?
+      environment = environments[args[0].to_sym] unless args[0].nil?
+      raise GLI::BadCommandLine.new("Couldn't find environment: \"#{args[0]}\"") if environment.nil?
     end
-    raise GLI::BadCommandLine.new("No endpoint is defined for environment: \"#{args[0]}\".") unless endpoint
 
-    if options[:environments]
+    if options[:list_environments]
       puts "Deploy environments: "
-      if global_options[:environments]
-        global_options[:environments].each {|k,v| puts "- #{k}: #{v}"}
-      else
-        puts "No environments defined."
-      end
-    elsif options[:dry_run]
+      environments.each {|k,v| puts "- #{k}: #{v}"} if environments
+      next
+    end
+
+    # Get and endpoint, possibly from an environment.
+    endpoint = environment[:endpoint] if environment
+    endpoint ||= options[:endpoint]
+
+    files = []
+    if options[:git] 
+      repo = environment[:repo]
+      raise GLI::BadCommandLine.new("No source git repo.") if repo.nil?
+      branch = environment[:branch]
+      branch ||= args[0]
+      source = "/tmp/moment.git.clone"
+    else
+      source = File.expand_path global_options[:directory]
+      files = Moment::Files.get_file_list source
+    end
+
+    if options[:dry_run]
       puts "Update endpoint: Amazon S3 bucket \"#{endpoint}\"."
       puts "From source: \"#{source}\"."
-      puts "Updates are:"
-      files.each do |f|
-        puts "- #{File.expand_path(f,source)} -> #{endpoint}: #{f}"
+      puts (options[:git] ?  "Git repo to use: #{repo} with branch #{branch}" : "Updates are:" )
+      files.each { |f| puts "- #{File.expand_path(f,source)} -> #{endpoint}: #{f}" }
+    else 
+      # Deploy from a git repo.
+      if options[:git]
+        puts "Cloning: #{git.repo} into #{source}"
+        git = Moment::Git.new(environments[:repo])
+        git.clone(source, environments[:branch])
+        files = Moment::Files.get_file_list source
       end
-    else # Actually do a deploy
+
+      credentials = Moment::Keys.installed
       static_service = Moment::S3.new(credentials)
       static_service.put_files(endpoint, source, files)
+
+      FileUtils.rm_rf temp_repo if File.exist?(temp_repo)
     end
   end
 end

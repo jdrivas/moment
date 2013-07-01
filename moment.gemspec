@@ -29,6 +29,7 @@ lib/moment.rb
   s.add_development_dependency('rb-fsevent')
   s.add_development_dependency('guard-cucumber')  
   s.add_development_dependency('guard-rspec')    
+  s.add_development_dependency('aruba')    
   s.add_runtime_dependency('gli','2.5.6')
   s.add_runtime_dependency('aws-s3')
   s.add_runtime_dependency('highline')  

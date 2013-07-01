@@ -1,0 +1,21 @@
+---
+# You can have as many environments as you want
+# uncomment the following to add them
+:environments:
+  :production:
+    :endpoint: moment-site
+    :repo: git@github.com:jdrivas/moment-test-site.git
+    :branch: master
+
+  :staging:
+    :endpoint: staging.moment-site
+    :repo: git@github.com:jdrivas/moment-test-site.git
+    :branch: staging
+
+
+:template_type: simple_php
+
+# You can also redefine the directory that contains your
+# site:
+#:directory: my_site
+#

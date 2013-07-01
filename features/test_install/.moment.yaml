@@ -1,0 +1,16 @@
+---
+# You can have as many environments as you want
+# uncomment the following to add them
+:environments: {
+  production: moment-site,
+  staging: staging.moment-site
+}
+
+# You can also redefine the directory that contains your
+# site:
+#:directory: my_site
+#
+# And the template engine
+#:build: {
+#  template_type: simple_php
+#}

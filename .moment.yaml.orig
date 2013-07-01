@@ -1,0 +1,6 @@
+--- 
+:environments: {
+  staging: staging.moment-test-us,
+  production: moment-test-us
+}
+:directory: site
