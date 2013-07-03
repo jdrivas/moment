@@ -36,8 +36,8 @@ Feature: Supports named environments.
       | `moment deploy -n production` | stderr | "Couldn't find environment: \"production\""     |
       | `moment deploy -n staging`    | stdout | "moment_cucumber_site"                          |
       | `moment deploy -n staging`    | stdout | "index.html"                                    |
-      | `moment deploy -ng staging`   | stdout | "git@github.com:jdrivas/moment-test-site.git"   |
-      | `moment deploy -ng staging`   | stdout | "cuke_branch"                                   |
+      | `moment deploy -nxg staging`   | stdout | "git@github.com:jdrivas/moment-test-site.git"   |
+      | `moment deploy -nxg staging`   | stdout | "cuke_branch"                                   |
       | `moment deploy -ne cuke_end`  | stdout | "cuke_end"                                      |
       | `moment deploy -l`             | stdout | "staging"                                       |
 
@@ -56,7 +56,7 @@ Feature: Supports named environments.
     Examples:
       | command                       | stream | message       |
       | `moment deploy -n staging`    | stdout | "moment_site" |
-      | `moment deploy -ng staging`   | stdout | "staging"     |
+      | `moment deploy -nxg staging`   | stdout | "staging"     |
 
   Scenario Outline: Catch errors when no repo is specified, even if an environment is.
     Given a directory named "site"

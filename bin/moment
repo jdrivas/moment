@@ -175,6 +175,9 @@ command :deploy do |c|
   c.desc 'Do a dry run without executing actions.'
   c.switch :n, :dry_run
 
+  c.desc "Don't use the network (won't put things on a file server, won't do a git clone."
+  c.switch :x, :no_network
+
   c.desc "Deploy from a git repository rather than the local directory."
   c.switch :g, :git
 
@@ -184,6 +187,7 @@ command :deploy do |c|
 
   c.desc 'List avaialble environments'
   c.switch :l, :list_environments
+
 
   c.action do |global_options,options,args|
 
@@ -208,12 +212,19 @@ command :deploy do |c|
     endpoint ||= options[:endpoint]
 
     files = []
+    temp_repo_clone = Moment::GIT_TEMP_CLONE
     if options[:git] 
       repo = environment[:repo]
       raise GLI::BadCommandLine.new("No source git repo.") if repo.nil?
-      temp_repo_clone = Moment::GIT_TEMP_CLONE
+
       branch = environment[:branch] || args[0]
       source = File.expand_path(global_options[:directory], temp_repo_clone)
+      unless options[:no_network]
+        puts "Cloning: #{repo} into #{temp_repo_clone}"
+        git = Moment::Git.new(repo)
+        git.clone(temp_repo_clone, branch)
+        files = Moment::Files.get_file_list source
+      end
     else
       source = File.expand_path global_options[:directory]
       files = Moment::Files.get_file_list source
@@ -225,20 +236,14 @@ command :deploy do |c|
       puts (options[:git] ?  "Git repo to use: #{repo} with branch #{branch}" : "Updates are:" )
       files.each { |f| puts "- #{File.expand_path(f,source)} -> #{endpoint}: #{f}" }
     else 
-      # Deploy from a git repo.
-      if options[:git]
-        puts "Cloning: #{repo} into #{temp_repo_clone}"
-        git = Moment::Git.new(repo)
-        git.clone(temp_repo_clone, branch)
-        files = Moment::Files.get_file_list source
+      unless options[:no_network]
+        credentials = Moment::Keys.installed
+        static_service = Moment::S3.new(credentials)
+        static_service.put_files(endpoint, source, files)
       end
-
-      credentials = Moment::Keys.installed
-      static_service = Moment::S3.new(credentials)
-      static_service.put_files(endpoint, source, files)
-
       FileUtils.rm_rf temp_repo_clone if File.exist?(temp_repo_clone)
     end
+
   end
 end
 
