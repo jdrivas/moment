@@ -1,4 +1,5 @@
 module Moment
+  GIT_TEMP_CLONE = "/tmp/moment.git.clone"
   class Git
     attr_accessor :repo
 

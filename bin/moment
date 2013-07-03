@@ -211,7 +211,7 @@ command :deploy do |c|
     if options[:git] 
       repo = environment[:repo]
       raise GLI::BadCommandLine.new("No source git repo.") if repo.nil?
-      temp_repo_clone = "/tmp/moment.git.clone"
+      temp_repo_clone = Moment::GIT_TEMP_CLONE
       branch = environment[:branch] || args[0]
       source = File.expand_path(global_options[:directory], temp_repo_clone)
     else
