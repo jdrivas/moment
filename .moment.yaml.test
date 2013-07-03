@@ -3,12 +3,12 @@
 # uncomment the following to add them
 :environments:
   :production:
-    :endpoint: moment-site
+    :endpoint: moment-test-us
     :repo: git@github.com:jdrivas/moment-test-site.git
     :branch: master
 
   :staging:
-    :endpoint: staging.moment-site
+    :endpoint: staging.moment-test-us
     :repo: git@github.com:jdrivas/moment-test-site.git
     :branch: staging
 
