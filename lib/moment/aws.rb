@@ -5,6 +5,9 @@ module Moment
 
     attr_reader :keys
 
+    # Credentials are a hash 
+    # { :access_key_id => "VALID-ACCESS-KEY", :secret_access_key => "VALID-SECRET-KEY" }
+    #
     def initialize(credentials)
       @keys = credentials
     end
