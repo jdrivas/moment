@@ -1,0 +1,14 @@
+---
+:d: site
+:version: false
+:help: false
+:directory: site
+commands:
+  :_doc: {}
+  :dump: {}
+  :init: {}
+  :credentials: {}
+  :files: {}
+  :build: {}
+  :site: {}
+  :deploy: {}
