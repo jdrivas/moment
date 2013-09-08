@@ -29,6 +29,7 @@ flag [:d, :directory]
 
 # desc "Noisly describe what's going on."
 # switch [:v, :verbose]
+
 desc 'DEBUG COMMAND'
 command :dump do |c|
   c.action do |global_options, options, args|
@@ -224,6 +225,21 @@ command :deploy do |c|
         puts "Cloning: #{repo} into #{temp_repo_clone}"
         git = Moment::Git.new(repo)
         git.clone(temp_repo_clone, branch)
+
+        # TODO: build in the directory
+        # this will require some thinking about making a build step generic.
+        # current thinking: Make a template class that we can create plugins for.
+        # Engine choice should be setup in config (or on the command line as a global option)
+        # This will require changes to the build command above, but build should refactor to a
+        # very simple operation using the template engine.
+        # also a new command called template with list and maybe install or something.
+
+        # TODO: Add a current_commit.txt file with the current commit
+
+        # TODO: Build a list of changed files from the previous commit and the current one.
+
+        # TODO: create the files list only from an updated list
+        # probably want a flag that allows you to update all.
         files = Moment::Files.get_file_list source
       end
     else
