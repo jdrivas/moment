@@ -29,14 +29,15 @@ flag [:d, :directory]
 
 # desc "Noisly describe what's going on."
 # switch [:v, :verbose]
-
 desc 'DEBUG COMMAND'
 command :dump do |c|
   c.action do |global_options, options, args|
-    puts Moment.config.configuration.inspect
-    puts "Global options: #{global_options.inspect}"
-    puts "Options: #{options.inspect} "
-    puts "Args: #{args.inspect}"
+    puts "Moment Configuration: "
+    puts Moment.config.configuration.to_yaml
+    puts "Global options:" 
+    puts global_options.inspect
+    puts "Options:\n #{options.inspect} "
+    puts "Args:\n #{args.inspect}"
   end  
 end
 
