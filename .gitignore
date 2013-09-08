@@ -1,3 +1,4 @@
 .aws_credentials
 .aws_credentials*
+.moment.yaml
 tmp
