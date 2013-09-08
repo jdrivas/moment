@@ -7,7 +7,7 @@ module Moment
     ACCESS_KEY = "aws_access_key_id"
     SECRET_KEY = "aws_secret_key"
 
-    attr_accessor :access_key_id, :secret_key
+    attr_accessor :access_key_id, :secret_key, :region
 
     # Get credentials that are installed
     # in local a yaml file.
@@ -21,6 +21,7 @@ module Moment
       return INSTALL_FILE_NAME
     end
 
+    # TODO: Decide if/where to put default region configuration informaiton.
     def initialize (aws_access_key_id, aws_secret_key)
       self.access_key_id = aws_access_key_id
       self.secret_key = aws_secret_key
@@ -37,5 +38,9 @@ module Moment
       end
       Pathname.new(Keys.install_filename).chmod(0600)
     end
-  end 
+
+    def aws_hash(region="us-east-1")
+      {access_key_id: access_key_id, secret_access_key: secret_key, region: region}
+    end
+  end
 end
