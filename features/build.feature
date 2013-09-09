@@ -41,7 +41,7 @@ Feature: We can build a site from a very basic php templating framework.
     """
 
   Scenario: App builds a simple_php file.
-    When I successfully run `moment build  -t simple_php`
+    When I successfully run `moment -t simple_php build`
     Then a file named "site/index.html" should exist
     And the file "site/index.html" should contain:
     """

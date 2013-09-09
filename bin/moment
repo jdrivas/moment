@@ -27,6 +27,10 @@ arg_name :site_dir
 default_value "site"
 flag [:d, :directory]
 
+desc "Template engine to use for creating a site"
+arg_name :template_engine
+flag [:t, :template_type]
+
 # desc "Noisly describe what's going on."
 # switch [:v, :verbose]
 
@@ -115,42 +119,25 @@ command :files do |c|
   end
 end
 
-available_template_engines = %w(none simple_php)
 desc 'Build the site using a template plugin.'
 long_desc '''
-Template plugins define a templating system, which is of-course plubin dependent.
+Template plugins define a templating system, which is of-course plugin dependent.
 A template plugin can be set up and configured through the configuration file.
 If a template plugin is specified on the command line it over-rides the configuration
 file.
 It no plugin is specified either on the comand line or through the configuration file
-no templating occurs and the build is essentially a no-op.
+no templating occurs and the build is a no-op.
 '''
 command :build do |c|
-
-  c.desc "Use the specificed template engine (over-ride the confugration file)."
-  c.flag :t, :template
-
   c.desc "Just list the available template engines (don't build)."
   c.switch :l, :list
 
   c.action do |global_options, options, args|
-    template = options[:template]
-    template ||= global_options[:template_type]
-    template ||= "none"
-
     if options[:list]
-      puts "Available templating engines: #{available_template_engines.join(',')}"
+      puts "Available templating engines: #{Moment::TemplateEngine.get_available_engines.join(',')}"
     else
-      case template
-      when "none"
-        puts "Template plubing: 'none' specified. Doing nothing."
-      when "simple_php" 
-        Moment::SimplePhp.build(File.expand_path(global_options[:directory]))
-      else
-        puts "Unreecognized template plugins: #{template}"
-        puts "Available plugins #{available_template_engines.join(',')}"
-        raise GLI::BadCommandLine.new("Unavailable template plugin.")
-      end
+      puts "Building with: #{Moment::TemplateEngine.get_engine.name}"
+      Moment::TemplateEngine.get_engine.build((File.expand_path(global_options[:directory])))
     end
   end
 end
@@ -190,7 +177,6 @@ command :deploy do |c|
   c.desc 'List avaialble environments'
   c.switch :l, :list_environments
 
-
   c.action do |global_options,options,args|
 
     # Need an environment if we've asked for one, or if we're getting our files from a git repo.
@@ -226,14 +212,6 @@ command :deploy do |c|
         git = Moment::Git.new(repo)
         git.clone(temp_repo_clone, branch)
 
-        # TODO: build in the directory
-        # this will require some thinking about making a build step generic.
-        # current thinking: Make a template class that we can create plugins for.
-        # Engine choice should be setup in config (or on the command line as a global option)
-        # This will require changes to the build command above, but build should refactor to a
-        # very simple operation using the template engine.
-        # also a new command called template with list and maybe install or something.
-
         # TODO: Add a current_commit.txt file with the current commit
 
         # TODO: Build a list of changed files from the previous commit and the current one.
@@ -252,13 +230,17 @@ command :deploy do |c|
       puts "From source: \"#{source}\"."
       puts (options[:git] ?  "Git repo to use: #{repo} with branch #{branch}" : "Updates are:" )
       files.each { |f| puts "- #{File.expand_path(f,source)} -> #{endpoint}: #{f}" }
-    else 
+    else
+      puts "looking for template engine: #{global_options[:template_type]}." 
+      template_engine = Moment::TemplateEngine.get_engine
+      puts "building with: #{template_engine.name}"
+      template_engine.build(source)
       unless options[:no_network]
         credentials = Moment::Keys.installed
         static_service = Moment::S3.new(credentials)
         static_service.put_files(endpoint, source, files)
       end
-      FileUtils.rm_rf temp_repo_clone if File.exist?(temp_repo_clone)
+      # FileUtils.rm_rf temp_repo_clone if File.exist?(temp_repo_clone)
     end
 
   end
@@ -290,6 +272,16 @@ pre do |global,command,options,args|
   # note that we don't want to go looking for the config file prior to
   # an init command
   global.merge!(Moment.config.configuration) unless command.name == "init"
+
+  # Setup the templates
+  template = global[:template_type].nil? ? :none : global[:template_type].to_sym
+  puts "Set the template engine to: #{template}"
+  unless Moment::TemplateEngine.set_engine(template)
+    puts "Unrecognized template plugin: #{template}"
+    puts "Available plugins #{Moment::TemplateEngine.get_available_engines.join(',')}"
+    raise GLI::BadCommandLine.new("Unavailable template plugin.")
+  end
+  puts "Just set the template engine to: \"#{Moment::TemplateEngine.get_engine.name}\""
   true
 end
 
