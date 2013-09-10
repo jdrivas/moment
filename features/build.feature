@@ -3,9 +3,9 @@ Feature: We can build a site from a very basic php templating framework.
   build take place automatically on deploy.
 
   Background:
-    Given a directory named "site"
-    Given a directory named "site/bindings"
-    Given a file named "site/template.php" with:
+    Given a directory named "my site"
+    Given a directory named "my site/bindings"
+    Given a file named "my site/template.php" with:
     """
     <?php
     if ($argv[1]) {
@@ -23,7 +23,7 @@ Feature: We can build a site from a very basic php templating framework.
       </body>
     </html>
     """
-    Given a file named "site/bindings/index.php" with:
+    Given a file named "my site/bindings/index.php" with:
     """
     <?php
     $header = <<< EOT
@@ -41,17 +41,17 @@ Feature: We can build a site from a very basic php templating framework.
     """
 
   Scenario: App builds a simple_php file.
-    When I successfully run `moment -t simple_php build`
-    Then a file named "site/index.html" should exist
-    And the file "site/index.html" should contain:
+    When I successfully run `moment -d "my site" -t simple_php build`
+    Then a file named "my site/index.html" should exist
+    And the file "my site/index.html" should contain:
     """
     <h1>Hello Simple PHP</h1>
     """
-    And the file "site/index.html" should contain:
+    And the file "my site/index.html" should contain:
     """
     <p>This is the body of a SimplePHP file.</p>
     """
-    And the file "site/index.html" should contain:
+    And the file "my site/index.html" should contain:
     """
     <h4>This is the footer</h4>
     """
