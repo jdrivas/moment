@@ -6,6 +6,8 @@ require 'moment/log.rb'
 require 'moment/config.rb'
 require 'moment/git.rb'
 
+require 'moment/file_tree.rb'
+
 # Templating
 require 'moment/simple_php.rb'
 require 'moment/no_template.rb'
