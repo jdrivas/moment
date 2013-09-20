@@ -126,6 +126,7 @@ def test_file_build files
   Dir.chdir(TEST_DIR_NAME) {yield if block_given?}
 end
 
+# TODO: make fakefs work with this.
 describe "files test code" do
 
   describe "build_files" do

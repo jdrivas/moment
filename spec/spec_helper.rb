@@ -38,3 +38,10 @@ RSpec.configure do |config|
   #     --seed 1234
   config.order = 'random'
 end
+
+# In memory filesystem used instead of real file system for
+# specs or describes tagged with :fakefs
+require 'fakefs/spec_helpers'
+RSpec.configure do |config|
+  config.include FakeFS::SpecHelpers, fakefs: true
+end

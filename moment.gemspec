@@ -31,6 +31,7 @@ lib/moment.rb
   s.add_development_dependency('guard-rspec')
   s.add_development_dependency('webmock')
   s.add_development_dependency('vcr')
+  s.add_development_dependency('fakefs')
   s.add_runtime_dependency('gli','2.5.6')
   s.add_runtime_dependency('aws-sdk', '~>1.0')  
   s.add_runtime_dependency('highline')  
