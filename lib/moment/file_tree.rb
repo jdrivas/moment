@@ -1,6 +1,8 @@
 require 'fileutils'
 
-# This will visit a structure build from an Array of Strings and Hashes.
+# This was created for testing and factored out to use in multiple specs.
+#
+# This will visit a structure built from an Array of Strings and Hashes.
 # The hashes will have a String key and an Array of Strings and Hashes
 # just like the top Array.
 #
@@ -27,7 +29,7 @@ module Moment
 
     def initialize file_struct, root_dir_name=nil
       @files = file_struct
-      @tree_root = root_dir_name
+      @tree_root = root_dir_name || "."
     end
 
     # Visit a directory heirarch specified by files.

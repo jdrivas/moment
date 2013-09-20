@@ -4,8 +4,10 @@ require 'moment'
 
 TEST_DIR_NAME = "test_dir"
 
-describe Moment::Files do 
+describe Moment::Files, :fakefs do 
+
   before {Moment::FileTree.new(files, TEST_DIR_NAME).build_tree}
+
   after{Moment::FileTree.delete TEST_DIR_NAME}
 
   let(:file_list){Moment::Files.get_file_list(TEST_DIR_NAME)}
