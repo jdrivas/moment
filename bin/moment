@@ -56,7 +56,12 @@ command :init do |c|
   c.switch [:f, :force]
 
   c.action do |global_options, options, args|
-    Moment::create_config(options[:force])
+    begin
+      Moment::create_configuration(options[:force])
+    rescue
+      raise GLI::BadCommandLine.new(
+        "Configuration file #{@file_name} already exsits. Use --force to overwrite")
+    end
   end
 end
 
@@ -271,7 +276,7 @@ pre do |global,command,options,args|
 
   # note that we don't want to go looking for the config file prior to
   # an init command
-  global.merge!(Moment.config.configuration) unless command.name == "init"
+  global.merge!(Moment.get_configuration.configuration) unless command.name == "init"
 
   # Setup the templates
   template = global[:template_type].nil? ? :none : global[:template_type].to_sym
