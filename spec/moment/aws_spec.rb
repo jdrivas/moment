@@ -29,7 +29,5 @@ describe Moment::S3 do
 		end
 	end
 
-
-
 end
 

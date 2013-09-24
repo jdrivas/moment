@@ -5,7 +5,7 @@ require 'moment/aws.rb'
 require 'moment/log.rb'
 require 'moment/config.rb'
 require 'moment/git.rb'
-require 'moment/deploy.rb'
+require 'moment/deployment.rb'
 require 'moment/file_tree.rb'
 
 # Templating

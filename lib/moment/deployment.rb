@@ -1,22 +1,20 @@
 module Moment
 
-	class Deploy
-		attr_accessor :source, :files, :endpoint, :template_engine, :credentials
+	class Deployment
+		attr_accessor :endpoint, :template_engine, :credentials
 		attr_accessor :dry_run, :silent
 
 
-		def initialize(deploy_source, deploy_files, deploy_endpoint, deploy_credentials)
-			@source = deploy_source
-			@files = deploy_files
+		def initialize(deploy_endpoint, deploy_credentials, template_engine = nil)
 			@endpoint = deploy_endpoint
 			@credentials = deploy_credentials
-			@template_engine = Moment::TemplateEngine.get_engine
+			@template_engine = template_engine.nil? ? Moment::NoTemplate : template_engine
 			@dry_run = false
 			@silent = true
 			@use_network = true
 		end
 
-		def deploy
+		def deploy_file_list(source, files)
 
 			unless silent
 				puts "Update endpoint: Amazon S3 bucket \"#{endpoint}\"."
@@ -24,22 +22,30 @@ module Moment
 				puts "Updates are: "
 				files.each {|f| puts "- #{File.expand_path(f, self.source)} => #{endpoint}: #{f}"}
 				puts "Using Template Engine: #{template_engine.name}"
-			end	
+			end
 
 			unless dry_run
-				build
-				deploy_files
+				build(source)
+				put_files(source, files,endpoint)
 				cleanup
 			end
 
 		end
 
-		def build
+		def deploy_repo(repo, branch, repo_clone_directory = Moment::GIT_TEMP_CLONE)
+			puts "Cloning: #{repo} into #{repo_clone_directory}" unless silent
+			source = repo_clone_directory
+			git = Moment::Git.new(repo)
+			git.clone(source, branch)
+			deploy_file_list(source, Moment::Files.get_file_list(source))
+		end
+
+		def build(source)
 			puts "building .... " unless silent
 			template_engine.build(source)
 		end
 
-		def deploy_files
+		def put_files(source, files, endpoint)
 			service = Moment::S3.new(credentials)
 			service.put_files(endpoint, source, files)
 		end
