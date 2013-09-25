@@ -20,24 +20,16 @@ module Moment
 				puts "Update endpoint: Amazon S3 bucket \"#{endpoint}\"."
 				puts "From source: \"#{source}\"."
 				puts "Updates are: "
-				files.each {|f| puts "- #{File.expand_path(f, self.source)} => #{endpoint}: #{f}"}
+				files.each {|f| puts "- #{File.expand_path(f, source)} => #{endpoint}: #{f}"}
 				puts "Using Template Engine: #{template_engine.name}"
 			end
 
 			unless dry_run
 				build(source)
 				put_files(source, files,endpoint)
-				cleanup
+				# cleanup
 			end
 
-		end
-
-		def deploy_repo(repo, branch, repo_clone_directory = Moment::GIT_TEMP_CLONE)
-			puts "Cloning: #{repo} into #{repo_clone_directory}" unless silent
-			source = repo_clone_directory
-			git = Moment::Git.new(repo)
-			git.clone(source, branch)
-			deploy_file_list(source, Moment::Files.get_file_list(source))
 		end
 
 		def build(source)
@@ -50,7 +42,22 @@ module Moment
 			service.put_files(endpoint, source, files)
 		end
 
-		def cleanup
+		# def cleanup
+		# end
+
+		# Let branch be either a string or symbol (or anything else that to_s works on)
+		def deploy_repo(repo, branch, source, repo_clone_directory, repo_cleanup = true)
+			puts "Cloning: #{repo} into #{repo_clone_directory}" unless silent
+			source = File.expand_path(source, repo_clone_directory)
+			git = Moment::Git.new(repo)
+			git.silent = silent
+			git.clone(repo_clone_directory, branch.to_s)
+			deploy_file_list(source, Moment::Files.get_file_list(source))
+			temp_repo_cleanup(repo_clone_directory) if repo_cleanup
+		end
+
+		def temp_repo_cleanup (dir)
+	    FileUtils.rm_rf dir if File.exist?(dir)
 		end
 
 	end
