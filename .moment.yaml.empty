@@ -1,0 +1,7 @@
+---
+# You can have as many environments as you want
+# uncomment the following to add them
+# You can also redefine the directory that contains your
+# site:
+#:directory: my_site
+#
