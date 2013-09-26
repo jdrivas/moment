@@ -26,7 +26,7 @@ module Moment
 
 			unless dry_run
 				build(source)
-				put_files(source, files,endpoint)
+				put_files(source, files, endpoint)
 				# cleanup
 			end
 
@@ -47,17 +47,19 @@ module Moment
 
 		# Let branch be either a string or symbol (or anything else that to_s works on)
 		def deploy_repo(repo, branch, source, repo_clone_directory, repo_cleanup = true)
-			puts "Cloning: #{repo} into #{repo_clone_directory}" unless silent
-			source = File.expand_path(source, repo_clone_directory)
-			git = Moment::Git.new(repo)
-			git.silent = silent
-			git.clone(repo_clone_directory, branch.to_s)
+			puts "Cloning repo: \"#{repo}\", branch: \"#{branch}\" into #{repo_clone_directory}" unless silent
+			unless dry_run
+				source = File.expand_path(source, repo_clone_directory)
+				git = Moment::Git.new(repo)
+				git.silent = silent
+				git.clone(repo_clone_directory, branch.to_s)
+			end
 			deploy_file_list(source, Moment::Files.get_file_list(source))
 			temp_repo_cleanup(repo_clone_directory) if repo_cleanup
 		end
 
 		def temp_repo_cleanup (dir)
-	    FileUtils.rm_rf dir if File.exist?(dir)
+	    FileUtils.rm_rf dir if File.exist?(dir) unless dry_run
 		end
 
 	end

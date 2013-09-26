@@ -169,14 +169,14 @@ command :deploy do |c|
   c.desc 'Do a dry run without executing actions.'
   c.switch :n, :dry_run
 
-  c.desc "Don't use the network (won't put things on a file server, won't do a git clone."
-  c.switch :x, :no_network
+  # c.desc "Don't use the network (won't put things on a file server, won't do a git clone."
+  # c.switch :x, :no_network
 
   c.desc "Deploy from a git repository rather than the local directory."
   c.switch :g, :git
 
   c.desc 'Deploy to endpoint (e.g. AWS bucket name)'
-  c.default_value "moment_site"
+  # c.default_value "moment_site"
   c.flag :e, :endpoint
 
   c.desc 'List avaialble environments'
@@ -184,69 +184,96 @@ command :deploy do |c|
 
   c.action do |global_options,options,args|
 
-    # Need an environment if we've asked for one, or if we're getting our files from a git repo.
     environments = global_options[:environments]
-    environment = nil
-    if args[0] || options[:git] || options[:list_environments]
-      raise GLI::BadCommandLine.new("Didn't specify an environment.") if args[0].nil?
-      raise GLI::BadCommandLine.new("No environments defined, can't find \"#{args[0]}\"") if environments.nil?
-      environment = environments[args[0].to_sym] unless args[0].nil?
-      raise GLI::BadCommandLine.new("Couldn't find environment: \"#{args[0]}\"") if environment.nil?
-    end
 
+    # List the available environments and exit.
     if options[:list_environments]
       puts "Deploy environments: "
-      environments.each {|k,v| puts "- #{k}: #{v}"} if environments
+      if environments.nil?
+        puts "No environments defined."
+      else
+        environments.each {|k,v| puts "- #{k}: #{v}"}
+      end
       next
     end
 
-    # Get and endpoint, possibly from an environment.
-    endpoint = environment[:endpoint] if environment
-    endpoint ||= options[:endpoint]
-
-    files = []
-    temp_repo_clone = Moment::GIT_TEMP_CLONE
-    if options[:git] 
+    # We need an environment for:
+    # - endpoints unless one is specified with the -e switch
+    # - repo and branch if we are  deploying from git.
+    environment = environments[args[0].to_sym] unless environments.nil? || args[0].nil?
+    endpoint = options[:endpoint]
+    if options[:git] || endpoint.nil?
+      raise GLI::BadCommandLine.new("Didn't specify an environment.") if args[0].nil?
+      raise GLI::BadCommandLine.new("No environments defined, can't find \"#{args[0]}\"") if environments.nil?
+      raise GLI::BadCommandLine.new("Couldn't find specified environment: \"#{args[0]}\"") if environment.nil?
+      endpoint = environment[:endpoint] if endpoint.nil?
       repo = environment[:repo]
-      raise GLI::BadCommandLine.new("No source git repo.") if repo.nil?
+      branch = environment[:branch]
+      raise GLI::BadCommandLine.new("Missing endpoint for deployment") if endpoint.nil?
+      raise GLI::BadCommandLine.new("Missing repo for git deployment") if repo.nil? && options[:git]
+    end
 
-      branch = environment[:branch] || args[0]
-      source = File.expand_path(global_options[:directory], temp_repo_clone)
-      unless options[:no_network]
-        puts "Cloning: #{repo} into #{temp_repo_clone}"
-        git = Moment::Git.new(repo)
-        git.clone(temp_repo_clone, branch)
 
-        # TODO: Add a current_commit.txt file with the current commit
+    keys = options[:dry_run] ? Moment::Keys.new("ACCESS","SECRET") : Moment::Keys.installed
 
-        # TODO: Build a list of changed files from the previous commit and the current one.
+    deployment = Moment::Deployment.new(endpoint, keys)
+    if options[:dry_run]
+      deployment.silent = false
+      deployment.dry_run = true
+    end
 
-        # TODO: create the files list only from an updated list
-        # probably want a flag that allows you to update all.
-        files = Moment::Files.get_file_list source
-      end
+    if(options[:git])
+      remove_local_repo = true
+      deployment.deploy_repo(repo, branch, global_options[:directory], 
+                              Moment::GIT_TEMP_CLONE, remove_local_repo)
     else
       source = File.expand_path global_options[:directory]
-      files = Moment::Files.get_file_list source
+      deployment.deploy_file_list(source, Moment::Files.get_file_list(source))
     end
 
-    if options[:dry_run]
-      puts "Update endpoint: Amazon S3 bucket \"#{endpoint}\"."
-      puts "From source: \"#{source}\"."
-      puts (options[:git] ?  "Git repo to use: #{repo} with branch #{branch}" : "Updates are:" )
-      files.each { |f| puts "- #{File.expand_path(f,source)} -> #{endpoint}: #{f}" }
-    else
-      puts "looking for template engine: #{global_options[:template_type]}." 
-      template_engine = Moment::TemplateEngine.get_engine
-      puts "building with: #{template_engine.name}"
-      template_engine.build(source)
-      unless options[:no_network]
-        credentials = Moment::Keys.installed
-        static_service = Moment::S3.new(credentials)
-        static_service.put_files(endpoint, source, files)
-      end
-      # FileUtils.rm_rf temp_repo_clone if File.exist?(temp_repo_clone)
-    end
+  #   files = []
+  #   temp_repo_clone = Moment::GIT_TEMP_CLONE
+  #   if options[:git] 
+  #     repo = environment[:repo]
+  #     raise GLI::BadCommandLine.new("No source git repo.") if repo.nil?
+
+  #     branch = environment[:branch] || args[0]
+  #     source = File.expand_path(global_options[:directory], temp_repo_clone)
+  #     unless options[:no_network]
+  #       puts "Cloning: #{repo} into #{temp_repo_clone}"
+  #       git = Moment::Git.new(repo)
+  #       git.clone(temp_repo_clone, branch)
+
+  #       # TODO: Add a current_commit.txt file with the current commit
+
+  #       # TODO: Build a list of changed files from the previous commit and the current one.
+
+  #       # TODO: create the files list only from an updated list
+  #       # probably want a flag that allows you to update all.
+  #       files = Moment::Files.get_file_list source
+  #     end
+  #   else
+  #     source = File.expand_path global_options[:directory]
+  #     files = Moment::Files.get_file_list source
+  #   end
+
+  #   if options[:dry_run]
+  #     puts "Update endpoint: Amazon S3 bucket \"#{endpoint}\"."
+  #     puts "From source: \"#{source}\"."
+  #     puts (options[:git] ?  "Git repo to use: #{repo} with branch #{branch}" : "Updates are:" )
+  #     files.each { |f| puts "- #{File.expand_path(f,source)} -> #{endpoint}: #{f}" }
+  #   else
+  #     puts "looking for template engine: #{global_options[:template_type]}." 
+  #     template_engine = Moment::TemplateEngine.get_engine
+  #     puts "building with: #{template_engine.name}"
+  #     template_engine.build(source)
+  #     unless options[:no_network]
+  #       credentials = Moment::Keys.installed
+  #       static_service = Moment::S3.new(credentials)
+  #       static_service.put_files(endpoint, source, files)
+  #     end
+  #     # FileUtils.rm_rf temp_repo_clone if File.exist?(temp_repo_clone)
+  #   end
 
   end
 end
@@ -280,13 +307,11 @@ pre do |global,command,options,args|
 
   # Setup the templates
   template = global[:template_type].nil? ? :none : global[:template_type].to_sym
-  puts "Set the template engine to: #{template}"
   unless Moment::TemplateEngine.set_engine(template)
     puts "Unrecognized template plugin: #{template}"
     puts "Available plugins #{Moment::TemplateEngine.get_available_engines.join(',')}"
     raise GLI::BadCommandLine.new("Unavailable template plugin.")
   end
-  puts "Just set the template engine to: \"#{Moment::TemplateEngine.get_engine.name}\""
   true
 end
 

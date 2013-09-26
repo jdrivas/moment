@@ -29,18 +29,16 @@ describe Moment::Deployment do
   end
 
 
-  describe "deploying from a list of files" do
+  describe "deploying from a list of files", :vcr => vcr_options do
 
     let(:source){"spec/fixtures/files/site_dir_1"}
     let(:file_list){["index.html"]}
     it "should copy files to the service", :vcr => vcr_options do
-      # d = Moment::Deploy.new(test_bucket_name, keys)
       deployment.deploy_file_list(source, file_list)
       check_files_on_aws(test_bucket_name, file_list, source)
     end
 
     it "should overwrite eixsting files", :vcr => vcr_options do
-      # d = Moment::Deploy.new(test_bucket_name, keys)
       deployment.deploy_file_list(source, file_list)
       deployment.deploy_file_list("spec/fixtures/files/site_dir_2", file_list)
       check_files_on_aws(test_bucket_name, file_list, "spec/fixtures/files/site_dir_2")
@@ -65,7 +63,9 @@ describe Moment::Deployment do
       check_files_on_aws(test_bucket_name, files, local_path)
     end
 
+    # THIS IS EXPENSIVE IT GOES TO A GIT REPO
     it "should copy files over from a remote repo" do
+      pending "This goes out on the net and clones a git repo. Put this in a CI"
       repo = "ssh://git@bitbucket.org/jdrivas/moment_test_repo_1.git"
       deployment.deploy_repo(repo, :master, source, repo_dir, false)
 

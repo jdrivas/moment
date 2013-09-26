@@ -1,3 +1,4 @@
+@focus
 Feature: We can build a site from a very basic php templating framework.
   As a user I want to build my static site with a template and have the
   build take place automatically on deploy.

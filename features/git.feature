@@ -11,7 +11,7 @@ Feature: Deploy from a git repo that is copied over locally.
         :repo: git@github.com:jdrivas/moment-test-site.git
     """
 
-  Scenario: Deploy with git should create the local repo
-    When I run `moment deploy -g staging`
-    Then a directory named "/tmp/moment.git.clone" should exist
+  # Scenario: Deploy with git should create the local repo
+  #   When I run `moment deploy -g staging`
+  #   Then a directory named "/tmp/moment.git.clone" should exist
 
