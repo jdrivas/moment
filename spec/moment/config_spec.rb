@@ -4,11 +4,18 @@ require 'moment'
 TEST_CONFIG_CONTENT = <<EOS
 ---
 # TEST CONFIGFILE
-:environments: {
-  production: moment-test,
-  staging: staging.moment-test
-}
-:directory: my_site
+:environments:
+  :production: 
+    :endpoint: moment-test
+    :repo: git@github.com:jdrivas/moment-test-site.git
+    :branch: master
+
+  :staging: 
+    :endpoint: staging.moment-test
+    :repo: git@github.com:jdrivas/moment-test-site.git
+    :branch: staging
+
+:directory: my-test-site
 EOS
 
 # Note we're using fakefs for a file system.
@@ -35,31 +42,37 @@ describe Moment::Configuration, :fakefs do
   describe "test the default configuration" do
     before { Moment::create_configuration}
 
-    it "should read the config file" do
+    it "should read the default config file" do
       c = Moment.get_configuration.configuration
-      c[:environments]["production"].should eq "moment-site"
-      c[:environments]["staging"].should eq "staging.moment-site"
+      c[:environments][:production][:endpoint].should eq "moment-site"
+      c[:environments][:staging][:endpoint].should eq "staging.moment-site"
     end
-
   end
 
   describe "test an existing configuration" do
 
     before {File.open(test_config_name, "w") { |f| f.puts TEST_CONFIG_CONTENT}}
 
-    it "should read an existing config file" do
-      Moment::get_configuration.configuration[:environments]["production"].should eq "moment-test"
+    it "reads an existing config file" do
+      c = Moment::get_configuration.configuration
+      c[:environments][:production][:endpoint].should eq "moment-test"
+      c[:environments][:production][:branch].should eq "master"
+      c[:environments][:production][:repo].should eq "git@github.com:jdrivas/moment-test-site.git"
+      c[:directory].should eq "my-test-site"
     end
 
-    it "should not overwrite an eixsting configuration file" do
+    it "will not overwrite an eixsting configuration file" do
       expect {Moment::create_configuration}.to raise_error
     end
 
-    it "should overwire an existing configuration if you ask" do
+    it "will overwrite an existing configuration if you ask nicely" do
       Moment::create_configuration(true)
       c = Moment::get_configuration.configuration
-      c[:environments]["production"].should eq "moment-site"
-      c[:environments]["staging"].should eq "staging.moment-site"
+      c[:environments][:production][:endpoint].should eq "moment-site"
+      c[:environments][:production][:branch].should eq "master"
+      c[:environments][:production][:repo].should eq "git@github.com:my_git_account/moment-test-site.git"
+      c[:directory].should eq "my_site"
+      c[:environments][:staging][:endpoint].should eq "staging.moment-site"
     end
 
   end

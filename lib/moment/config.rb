@@ -60,14 +60,20 @@ module Moment
 ---
 # You can have as many environments as you want
 # uncomment the following to add them
-:environments: {
-  production: moment-site,
-  staging: staging.moment-site
-}
+:environments:
+  :production: 
+    :endpoint: moment-site
+    :repo: git@github.com:my_git_account/moment-test-site.git
+    :branch: master
+
+  :staging:
+    :endpoint: staging.moment-site
+    :repo: git@github:my_git_account/moment-test-site.git
+    :branch: staging
 
 # You can also redefine the directory that contains your
 # site:
-#:directory: my_site
+:directory: my_site
 #
 # And the template engine
 #:build: {
