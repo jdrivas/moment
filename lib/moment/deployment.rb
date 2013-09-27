@@ -27,7 +27,6 @@ module Moment
 			unless dry_run
 				build(source)
 				put_files(source, files, endpoint)
-				# cleanup
 			end
 
 		end
@@ -41,9 +40,6 @@ module Moment
 			service = Moment::S3.new(credentials)
 			service.put_files(endpoint, source, files)
 		end
-
-		# def cleanup
-		# end
 
 		# Let branch be either a string or symbol (or anything else that to_s works on)
 		def deploy_repo(repo, branch, source, repo_clone_directory, repo_cleanup = true)
