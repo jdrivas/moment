@@ -3,7 +3,7 @@ require 'moment'
 
 
 # Generally this only needs to get set up 
-# The first time this test is run in a new local repository.
+# the first time this suite is run in a new local repository.
 TEMP_DIR = "spec/fixtures/tmp"
 unless File.exists?(TEMP_DIR)
   Dir.mkdir(TEMP_DIR)
@@ -12,16 +12,12 @@ end
 GIT_REPO_DIR = "spec/fixtures/files/git_test_repo"
 GIT_REPO_FILE = File.expand_path(".git", GIT_REPO_DIR)
 GIT_REPO_SOURCE_DIR = "spec/fixtures/files/site_dir_3"
-
 unless File.exists?(GIT_REPO_DIR)
   FileUtils.cp_r(GIT_REPO_SOURCE_DIR, GIT_REPO_DIR)
   Dir.chdir(GIT_REPO_DIR) do
     system "git init && git add . && git commit -m 'first commit'"
   end
-
 end
-
-
 
 def check_files_on_aws(bucket_name, file_list, source)
   file_list.each do |fn|
@@ -46,7 +42,6 @@ describe Moment::Deployment do
   after do
     s3_conn.buckets[test_bucket_name].delete!
   end
-
 
   describe "deploying from a list of files", :vcr => vcr_options do
 
