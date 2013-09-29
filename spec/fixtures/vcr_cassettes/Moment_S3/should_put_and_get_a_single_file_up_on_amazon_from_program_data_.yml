@@ -1,0 +1,135 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: https://s3.amazonaws.com/moment_test
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - ''
+      Accept-Encoding:
+      - ''
+      User-Agent:
+      - aws-sdk-ruby/1.19.0 ruby/1.9.3 x86_64-darwin12.2.1
+      Date:
+      - Sun, 29 Sep 2013 21:16:15 GMT
+      Authorization:
+      - AWS 1E06NMHHXXSKBMKFHFR2:Rh45ESeeRiC81F/SN/DA2Mo0/yU=
+      Accept:
+      - ! '*/*'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Amz-Id-2:
+      - i8eLkBk9m+5+ncs2FfxHeY65O4LNJ/Fc/plFd8ak6EGUyyTy5f321iXsZ59d8PmE
+      X-Amz-Request-Id:
+      - 921A729CD7E3567C
+      Date:
+      - Sun, 29 Sep 2013 21:16:16 GMT
+      Location:
+      - /moment_test
+      Content-Length:
+      - '0'
+      Server:
+      - AmazonS3
+    body:
+      encoding: US-ASCII
+      string: ''
+    http_version: 
+  recorded_at: Sun, 29 Sep 2013 21:16:16 GMT
+- request:
+    method: put
+    uri: https://s3.amazonaws.com/moment_test/test/test-data.txt
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        MTIzNDU2Nzg5MEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFla
+    headers:
+      Content-Type:
+      - ''
+      Accept-Encoding:
+      - ''
+      Content-Length:
+      - '36'
+      User-Agent:
+      - aws-sdk-ruby/1.19.0 ruby/1.9.3 x86_64-darwin12.2.1
+      Date:
+      - Sun, 29 Sep 2013 21:16:16 GMT
+      Authorization:
+      - AWS 1E06NMHHXXSKBMKFHFR2:3cyLQKT7bJ4NeejRz7W9y8+QM2g=
+      Accept:
+      - ! '*/*'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Amz-Id-2:
+      - Frqc6RYlMMZYpgxV+yZ7pG9Fo+80EbtGBJsz8rl4OrGTwFJf5DuLT3RL0xvqlk6K
+      X-Amz-Request-Id:
+      - 9628CD23742061DD
+      Date:
+      - Sun, 29 Sep 2013 21:16:16 GMT
+      Etag:
+      - ! '"b8ea760cc575698b7aaf5afadd72f639"'
+      Content-Length:
+      - '0'
+      Server:
+      - AmazonS3
+    body:
+      encoding: US-ASCII
+      string: ''
+    http_version: 
+  recorded_at: Sun, 29 Sep 2013 21:16:17 GMT
+- request:
+    method: get
+    uri: https://s3.amazonaws.com/moment_test/test/test-data.txt
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - ''
+      Accept-Encoding:
+      - ''
+      User-Agent:
+      - aws-sdk-ruby/1.19.0 ruby/1.9.3 x86_64-darwin12.2.1
+      Date:
+      - Sun, 29 Sep 2013 21:16:17 GMT
+      Authorization:
+      - AWS 1E06NMHHXXSKBMKFHFR2:OtHO8LZLhobbmm99AvTXIUpzBCY=
+      Accept:
+      - ! '*/*'
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Amz-Id-2:
+      - BdxsqZRXD4DX84AJpejl2J97PuRpWdYoZ49ADQDwXCwF4iT7i0NL28IWf2PwyuUr
+      X-Amz-Request-Id:
+      - F2655E9F9AA80EB1
+      Date:
+      - Sun, 29 Sep 2013 21:16:17 GMT
+      Last-Modified:
+      - Sun, 29 Sep 2013 21:16:16 GMT
+      Etag:
+      - ! '"b8ea760cc575698b7aaf5afadd72f639"'
+      Accept-Ranges:
+      - bytes
+      Content-Type:
+      - ''
+      Content-Length:
+      - '36'
+      Server:
+      - AmazonS3
+    body:
+      encoding: US-ASCII
+      string: 1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    http_version: 
+  recorded_at: Sun, 29 Sep 2013 21:16:17 GMT
+recorded_with: VCR 2.5.0

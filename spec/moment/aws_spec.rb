@@ -1,6 +1,9 @@
 require 'spec_helper'
 require 'moment'
 
+vcr_options = {:record => :new_episodes}
+# vcr_options = {:record => :all}
+
 describe Moment::S3 do
 	let(:test_bucket_name){"moment_test"}
 	let(:aws_keys){Moment::Keys.installed}
@@ -11,7 +14,7 @@ describe Moment::S3 do
 		aws_conn.buckets.create(test_bucket_name)
 	end
 
-	it "should succesfully put a file up on Amazon", :vcr  do
+	it "should succesfully put a single file file-list up on Amazon", :vcr  do
 		test_file_name = "fixtures/files/test-data.txt"
 		s3.put_files(test_bucket_name, "spec", [test_file_name])
 		remote = aws_conn.buckets[test_bucket_name].objects[test_file_name].read
@@ -29,5 +32,12 @@ describe Moment::S3 do
 		end
 	end
 
+	it "should put and get a single file up on amazon from program data.", :vcr => vcr_options do
+		test_data = "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		remote_file_name = "test/test-data.txt"
+		s3.put_data(test_bucket_name, remote_file_name, test_data)
+		remote = s3.get_data(test_bucket_name, remote_file_name)
+		remote.should eq test_data
+	end
 end
 

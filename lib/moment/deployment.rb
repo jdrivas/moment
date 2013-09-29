@@ -1,9 +1,12 @@
+require 'rugged'
+
 module Moment
+
+	CURRENT_COMMIT_FILE = ".commit_stamp"
 
 	class Deployment
 		attr_accessor :endpoint, :template_engine, :credentials
 		attr_accessor :dry_run, :silent
-
 
 		def initialize(deploy_endpoint, deploy_credentials, template_engine = nil)
 			@endpoint = deploy_endpoint
@@ -42,15 +45,46 @@ module Moment
 		end
 
 		# Let branch be either a string or symbol (or anything else that to_s works on)
-		def deploy_repo(repo, branch, source, repo_clone_directory, repo_cleanup = true)
-			puts "Cloning repo: \"#{repo}\", branch: \"#{branch}\" into #{repo_clone_directory}" unless silent
+		def deploy_repo(repo_url, branch, source, repo_clone_directory, repo_cleanup = true)
+
+			puts "Cloning repo: \"#{repo_url}\", branch: \"#{branch}\" into #{repo_clone_directory}" unless silent
+
+			repo = Rugged::Repository.new(repo_url)			
 			unless dry_run
 				source = File.expand_path(source, repo_clone_directory)
-				git = Moment::Git.new(repo)
+				git = Moment::Git.new(repo_url)
 				git.silent = silent
 				git.clone(repo_clone_directory, branch.to_s)
 			end
+
+			##
+			# What happens if we get hosed in the middle.
+			# We need a way to reset to the latest commit (or even one before)
+			##
+
+			# Get the old current commit file from the end point.
+			old_commit_id = get_current_commit_id
+			if old_commit_id.nil? 
+				puts "Didn't find a commit id at the endpoint." unless silent
+			else 
+				puts "Commit on endpoint is: #{old_commit_id}" unless silent
+			end
+
+			# Put the new current commit onto the endpoint
+			last_commit_id = repo.last_commit.oid
+			set_current_commit_id(last_commit_id)
+			puts "Latest repo commit is: #{last_commit_id}" unless silent
+			
+			# Get the diff list between the two commits.
+			puts "Comparing new commit: #{last_commit_id} against"
+			puts "old commit: #{old_commit_id}"
+			
+			# Delete files marked for deletion
+			# Move files marked for move
+			# Update files marked for updating.
+
 			deploy_file_list(source, Moment::Files.get_file_list(source))
+
 			temp_repo_cleanup(repo_clone_directory) if repo_cleanup
 		end
 
@@ -58,6 +92,60 @@ module Moment
 	    FileUtils.rm_rf dir if File.exist?(dir) unless dry_run
 		end
 
+		def get_current_commit_id
+			Moment::S3.new(credentials).get_data(endpoint, CURRENT_COMMIT_FILE)
+		end
+
+		def set_current_commit_id(id)
+			Moment::S3.new(credentials).put_data(endpoint, CURRENT_COMMIT_FILE, id)
+		end
+
 	end
+	# 
+	# Originally from the moment command line app.
+	# 
+  #   files = [] 
+  #   temp_repo_clone = Moment::GIT_TEMP_CLONE
+  #   if options[:git] 
+  #     repo = environment[:repo]
+  #     raise GLI::BadCommandLine.new("No source git repo.") if repo.nil?
+
+  #     branch = environment[:branch] || args[0]
+  #     source = File.expand_path(global_options[:directory], temp_repo_clone)
+  #     unless options[:no_network]
+  #       puts "Cloning: #{repo} into #{temp_repo_clone}"
+  #       git = Moment::Git.new(repo)
+  #       git.clone(temp_repo_clone, branch)
+
+  #       # TODO: Add a current_commit.txt file with the current commit
+
+  #       # TODO: Build a list of changed files from the previous commit and the current one.
+
+  #       # TODO: create the files list only from an updated list
+  #       # probably want a flag that allows you to update all.
+  #       files = Moment::Files.get_file_list source
+  #     end
+  #   else
+  #     source = File.expand_path global_options[:directory]
+  #     files = Moment::Files.get_file_list source
+  #   end
+
+  #   if options[:dry_run]
+  #     puts "Update endpoint: Amazon S3 bucket \"#{endpoint}\"."
+  #     puts "From source: \"#{source}\"."
+  #     puts (options[:git] ?  "Git repo to use: #{repo} with branch #{branch}" : "Updates are:" )
+  #     files.each { |f| puts "- #{File.expand_path(f,source)} -> #{endpoint}: #{f}" }
+  #   else
+  #     puts "looking for template engine: #{global_options[:template_type]}." 
+  #     template_engine = Moment::TemplateEngine.get_engine
+  #     puts "building with: #{template_engine.name}"
+  #     template_engine.build(source)
+  #     unless options[:no_network]
+  #       credentials = Moment::Keys.installed
+  #       static_service = Moment::S3.new(credentials)
+  #       static_service.put_files(endpoint, source, files)
+  #     end
+  #     # FileUtils.rm_rf temp_repo_clone if File.exist?(temp_repo_clone)
+  #   end
 
 end

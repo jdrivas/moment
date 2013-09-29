@@ -48,7 +48,7 @@ module Moment
           Dir.chdir(k) {visit_tree(v, &block) }
         end
       else
-        throw "Bad directory structure #{files}"
+        raise "Bad directory structure #{files}"
       end
     end
 
@@ -62,7 +62,7 @@ module Moment
       when String
         yield(:file, files) if block_given?
       else
-        throw "Bad directory structure #{files}"
+        raise "Bad directory structure #{files}"
       end
     end
 
@@ -79,7 +79,7 @@ module Moment
             when :directory
               Dir.mkdir(name)
             else
-              throw "BAD VISIT TREE TYPE. #{type}"
+              raise "BAD VISIT TREE TYPE. #{type}"
             end
           end
         end
@@ -101,7 +101,7 @@ module Moment
         when :file
           file_list.push(current_dir + "/" + name)
         else
-          throw "BAD VISIT TYREE TYPE. #{type}"
+          raise "BAD VISIT TYREE TYPE. #{type}"
         end
       end
       file_list

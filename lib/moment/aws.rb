@@ -30,7 +30,7 @@ module Moment
     def put_files(bucket_name, source_directory, file_list)
 
       if connection.nil?
-        puts "******* Failed to connect to to S3"
+        raise "******* Failed to connect to to S3"
         return
       end
 
@@ -44,8 +44,27 @@ module Moment
           bucket.objects[f].write(File.read(path))
         end
       else
-        puts "Bucket: \"#{bucket.name}\" doesn't exist on this S3 account."
+        raise "Bucket: \"#{bucket.name}\" doesn't exist on this S3 account."
       end
     end
+
+    # NOTE: returns nil if the object doesn't exist.
+    def get_data(bucket_name, file_path) 
+      raise "Failled to connecton S3" if connection.nil?
+      data = nil
+      begin
+        bucket = connection.buckets[bucket_name]
+        data = bucket.objects[file_path].read
+      rescue AWS::S3::Errors::NoSuchKey
+      end
+      data
+    end
+
+    def put_data(bucket_name, file_path, contents)
+      raise "Failed to conenct to S3" if connection.nil?
+      bucket = connection.buckets[bucket_name]
+      bucket.objects[file_path].write(contents)
+    end
+
   end
 end
