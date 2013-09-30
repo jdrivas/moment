@@ -76,8 +76,8 @@ module Moment
 			puts "Latest repo commit is: #{last_commit_id}" unless silent
 			
 			# Get the diff list between the two commits.
-			puts "Comparing new commit: #{last_commit_id} against"
-			puts "old commit: #{old_commit_id}"
+			# puts "Comparing new commit: #{last_commit_id} against"
+			# puts "old commit: #{old_commit_id}"
 			
 			# Delete files marked for deletion
 			# Move files marked for move

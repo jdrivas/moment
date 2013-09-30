@@ -37,6 +37,8 @@ describe Moment::Deployment do
   let(:deployment){Moment::Deployment.new(test_bucket_name, keys)}
   before do
     s3_conn.buckets.create(test_bucket_name)
+    # repo = Rugged::Repository.new(GIT_REPO_DIR)
+    # deployment.set_current_commit_id(repo.last_commit.oid)    
   end
 
   after do
@@ -76,6 +78,7 @@ describe Moment::Deployment do
       local_path = File.expand_path(source, repo_dir)
       files = Moment::Files.get_file_list local_path
       check_files_on_aws(test_bucket_name, files, local_path)
+      deployment.get_current_commit_id.should_not be_nil
     end
 
     # THIS IS EXPENSIVE IT GOES TO A GIT REPO ON GITHUB.
@@ -87,6 +90,7 @@ describe Moment::Deployment do
       local_path = File.expand_path(source, repo_dir)
       files = Moment::Files.get_file_list local_path
       check_files_on_aws(test_bucket_name, files, local_path)
+      deployment.get_current_commit_id.should_not be_nil      
     end
 
   end
