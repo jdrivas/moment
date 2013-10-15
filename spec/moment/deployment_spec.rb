@@ -37,6 +37,7 @@ describe Moment::Deployment do
   let(:deployment){Moment::Deployment.new(test_bucket_name, keys)}
   before do
     s3_conn.buckets.create(test_bucket_name)
+    # deployment.silent = false
     # repo = Rugged::Repository.new(GIT_REPO_DIR)
     # deployment.set_current_commit_id(repo.last_commit.oid)    
   end

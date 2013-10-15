@@ -73,15 +73,13 @@ module Moment
 			# Put the new current commit onto the endpoint
 			last_commit_id = repo.last_commit.oid
 			set_current_commit_id(last_commit_id)
-			puts "Latest repo commit is: #{last_commit_id}" unless silent
+			# puts "Latest repo commit is: #{last_commit_id}" unless silent
 			
 			# Get the diff list between the two commits.
 			# puts "Comparing new commit: #{last_commit_id} against"
 			# puts "old commit: #{old_commit_id}"
-			
-			# Delete files marked for deletion
-			# Move files marked for move
-			# Update files marked for updating.
+			deltas = repo.diff(old_commit_id, last_commit_id).deltas
+			update_endpoint(deltas)
 
 			deploy_file_list(source, Moment::Files.get_file_list(source))
 
@@ -100,7 +98,106 @@ module Moment
 			Moment::S3.new(credentials).put_data(endpoint, CURRENT_COMMIT_FILE, id)
 		end
 
+		def update_endpoint(deltas)
+			unless silent
+				puts "There are #{deltas.size} update."
+				if old_commit_id.nil?
+					puts "first commit."
+				else
+					puts "old: #{old_commit_id}, new: #{last_commit_id}"
+				end
+				puts "Update list is:"
+				deltas.each do |d|
+					puts "#{d.old_file[:path]} => #{d.new_file[:path]} : #{d.status}"
+				end
+			end
+			deltas.each do |d|
+				update_endpoint_with_delta(delta)
+			end
+
+		end
+
+		def update_endpoint_with_delta(delta)
+			put_files = []
+			remove_files = []
+			case delta.status
+			when :added
+				put_files << delta.old_file[:path]
+			when :deleted
+				remove_files << delta.old_file[:path]
+			when :modified
+				put_files << delta.old_file[:path]
+			when :renamed
+				put_files << delta.new_file[:path]
+				remove_files << delta.old_file[:path]
+			when :copied
+				put_files << delta.new_file[:path]
+			when :ignored
+			when :untracked
+				remove_files << delta.old_file[:path]
+			when :typechange?
+			end
+
+			copy_files(put_files)
+			delete_files(remove_files)
+		end
+
+		def copy_files(files)
+		end
+
+		def delete_files(files)
+		end
+		
 	end
+
+			# Delete files marked for deletion
+			# Move files marked for move
+			# Update files marked for updating.
+			 # class Delta
+    #   attr_reader :owner
+    #   alias diff owner
+
+    #   attr_reader :old_file
+    #   attr_reader :new_file
+    #   attr_reader :similarity
+    #   attr_reader :status
+    #   attr_reader :binary
+
+    #   alias binary? binary
+
+    #   def added?
+    #     status == :added
+    #   end
+
+    #   def deleted?
+    #     status == :deleted
+    #   end
+
+    #   def modified?
+    #     status == :modified
+    #   end
+
+    #   def renamed?
+    #     status == :renamed
+    #   end
+
+    #   def copied?
+    #     status == :copied
+    #   end
+
+    #   def ignored?
+    #     status == :ignored
+    #   end
+
+    #   def untracked?
+    #     status == :untracked
+    #   end
+
+    #   def typechange?
+    #     status == :typechange
+    #   end
+
+
 	# 
 	# Originally from the moment command line app.
 	# 
