@@ -47,15 +47,14 @@ module Moment
 		# Let branch be either a string or symbol (or anything else that to_s works on)
 		def deploy_repo(repo_url, branch, source, repo_clone_directory, repo_cleanup = true)
 
-			puts "Cloning repo: \"#{repo_url}\", branch: \"#{branch}\" into #{repo_clone_directory}" unless silent
+			puts "Deploying repo: \"#{repo_url}\", branch: \"#{branch}\" though #{repo_clone_directory} to #{endpoint}" unless silent
+      return if dry_run
 
-			repo = Rugged::Repository.new(repo_url)			
-			unless dry_run
-				source = File.expand_path(source, repo_clone_directory)
-				git = Moment::Git.new(repo_url)
-				git.silent = silent
-				git.clone(repo_clone_directory, branch.to_s)
-			end
+			source = File.expand_path(source, repo_clone_directory)
+			git = Moment::Git.new(repo_url)
+			git.silent = silent
+			git.clone(repo_clone_directory, branch.to_s)
+      local_repo = Rugged::Repository.new(repo_clone_directory)  
 
 			##
 			# What happens if we get hosed in the middle.
@@ -70,15 +69,15 @@ module Moment
 				puts "Commit on endpoint is: #{old_commit_id}" unless silent
 			end
 
-			# Put the new current commit onto the endpoint
-			last_commit_id = repo.last_commit.oid
+      # Put the new current commit onto the endpoint
+			last_commit_id = local_repo.last_commit.oid
 			set_current_commit_id(last_commit_id)
 			# puts "Latest repo commit is: #{last_commit_id}" unless silent
 			
 			# Get the diff list between the two commits.
 			# puts "Comparing new commit: #{last_commit_id} against"
 			# puts "old commit: #{old_commit_id}"
-			deltas = repo.diff(old_commit_id, last_commit_id).deltas
+			deltas = local_repo.diff(old_commit_id, last_commit_id).deltas
 			update_endpoint(deltas)
 
 			deploy_file_list(source, Moment::Files.get_file_list(source))
@@ -111,7 +110,7 @@ module Moment
 					puts "#{d.old_file[:path]} => #{d.new_file[:path]} : #{d.status}"
 				end
 			end
-			deltas.each do |d|
+			deltas.each do |delta|
 				update_endpoint_with_delta(delta)
 			end
 

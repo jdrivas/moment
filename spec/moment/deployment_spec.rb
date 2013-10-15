@@ -84,7 +84,7 @@ describe Moment::Deployment do
 
     # THIS IS EXPENSIVE IT GOES TO A GIT REPO ON GITHUB.
     it "should copy files over from a remote repo" do
-      pending "This goes out on the net and clones a git repo. Put this in a CI"
+      # pending "This goes out on the net and clones a git repo. Put this in a CI"
       repo = "ssh://git@bitbucket.org/jdrivas/moment_test_repo_1.git"
       deployment.deploy_repo(repo, :master, source, repo_dir, false)
 
