@@ -70,7 +70,7 @@ module Moment
 			last_commit_id = local_repo.last_commit.oid
 			set_current_commit_id(last_commit_id)
 
-      # TODO: Implement update_endpoint!
+      # TODO: Implement puts and delete files.
 			deltas = local_repo.diff(old_commit_id, last_commit_id).deltas
 			update_endpoint(deltas)
 
@@ -111,10 +111,8 @@ module Moment
 					puts "#{d.old_file[:path]} => #{d.new_file[:path]} : #{d.status}"
 				end
 			end
-			deltas.each do |delta|
-				update_endpoint_with_delta(delta)
-			end
 
+			deltas.each { |d|update_endpoint_with_delta(d)}
 		end
 
 		def update_endpoint_with_delta(delta)
@@ -143,9 +141,13 @@ module Moment
 		end
 
 		def copy_files(files)
+      puts "copying #{files.size} files to the endpoint."
+      files.each {|f| puts "- \"#{f}\""}
 		end
 
 		def delete_files(files)
+      puts "deleting #{files.size} files from the endpoint."
+      files.each {|f| puts "- \"#{f}\""}
 		end
 		
 	end

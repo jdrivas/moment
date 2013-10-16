@@ -94,7 +94,7 @@ describe Moment::Deployment do
       deployment.get_current_commit_id.should_not be_nil
     end
 
-    it "should only copy new files over from a local repo", {:vcr => vcr_dev} do
+    it "should only copy new files over from a local repo", {:vcr => vcr_current} do
       # Copy the test repo and  deploy it fresh to AWS.
       source_repo_dir = GIT_REPO_DIR
       deployment.silent = true
@@ -119,7 +119,7 @@ describe Moment::Deployment do
       deployment.deploy_repo(source_repo_dir, :master, source, dest_repo_dir, false)
 
        # COMPARE THE FILES THAT ARE THERE WITH WHAT ARE SUPPOSED TO BE THERE
-       # TODO: ENSURE THAT ONLY THE NEW FILES IS ACTUALLY SENT.
+       # TODO: ENSURE THAT ONLY THE NEW FILES ARE ACTUALLY SENT.
       local_path = File.expand_path(source, dest_repo_dir)
       files = Moment::Files.get_file_list local_path
       check_files_on_aws(test_bucket_name, files, local_path)
