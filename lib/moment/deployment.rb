@@ -48,20 +48,16 @@ module Moment
 		def deploy_repo(repo_url, branch, source, repo_clone_directory, repo_cleanup = true)
 
 			puts "Deploying repo: \"#{repo_url}\", branch: \"#{branch}\" though #{repo_clone_directory} to #{endpoint}" unless silent
+      
       return if dry_run
 
-			source = File.expand_path(source, repo_clone_directory)
-			git = Moment::Git.new(repo_url)
-			git.silent = silent
-			git.clone(repo_clone_directory, branch.to_s)
-      local_repo = Rugged::Repository.new(repo_clone_directory)  
+      create_local_clone(repo_url, branch, repo_clone_directory)
 
 			##
-			# What happens if we get hosed in the middle.
+			# TODO: What happens if we get hosed in the middle.
 			# We need a way to reset to the latest commit (or even one before)
 			##
 
-			# Get the old current commit file from the end point.
 			old_commit_id = get_current_commit_id
 			if old_commit_id.nil? 
 				puts "Didn't find a commit id at the endpoint." unless silent
@@ -69,21 +65,26 @@ module Moment
 				puts "Commit on endpoint is: #{old_commit_id}" unless silent
 			end
 
-      # Put the new current commit onto the endpoint
+      local_repo = Rugged::Repository.new(repo_clone_directory)  
+
 			last_commit_id = local_repo.last_commit.oid
 			set_current_commit_id(last_commit_id)
-			# puts "Latest repo commit is: #{last_commit_id}" unless silent
-			
-			# Get the diff list between the two commits.
-			# puts "Comparing new commit: #{last_commit_id} against"
-			# puts "old commit: #{old_commit_id}"
+
+      # TODO: Implement update_endpoint!
 			deltas = local_repo.diff(old_commit_id, last_commit_id).deltas
 			update_endpoint(deltas)
 
+      source = File.expand_path(source, repo_clone_directory)
 			deploy_file_list(source, Moment::Files.get_file_list(source))
 
 			temp_repo_cleanup(repo_clone_directory) if repo_cleanup
 		end
+
+    def create_local_clone(source_url, branch, clone_directory)
+      git = Moment::Git.new(source_url)
+      git.silent = silent
+      git.clone(clone_directory, branch.to_s)
+    end
 
 		def temp_repo_cleanup (dir)
 	    FileUtils.rm_rf dir if File.exist?(dir) unless dry_run

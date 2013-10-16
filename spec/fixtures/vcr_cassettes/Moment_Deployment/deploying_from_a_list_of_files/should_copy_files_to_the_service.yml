@@ -58,9 +58,9 @@ http_interactions:
       User-Agent:
       - aws-sdk-ruby/1.19.0 ruby/1.9.3 x86_64-darwin12.4.0
       Date:
-      - Tue, 15 Oct 2013 15:48:01 GMT
+      - Wed, 16 Oct 2013 10:12:02 GMT
       Authorization:
-      - AWS 1E06NMHHXXSKBMKFHFR2:neU5e0zUP0lj8sf/JbZ99YQr+jQ=
+      - AWS 1E06NMHHXXSKBMKFHFR2:EJ0LPf+zNSEEPpuMH+FLZE3h5rk=
       Accept:
       - ! '*/*'
   response:
@@ -69,11 +69,11 @@ http_interactions:
       message: OK
     headers:
       X-Amz-Id-2:
-      - CgAgLNBFeJu7i+2qKPe8IPz6tJCt6Rx6Vw+kwCRAWLTp1gVmm6toSbtZkuGRlwub
+      - 3zKPsD8ygHGnWqWP5zR4AHqSqWEvV8vhV0T7BQ9MA352sbJerNXxaEWIP6PYphQ2
       X-Amz-Request-Id:
-      - 736A446861B82062
+      - FB93BCE04A646689
       Date:
-      - Tue, 15 Oct 2013 15:47:58 GMT
+      - Wed, 16 Oct 2013 10:12:02 GMT
       Location:
       - /moment_display_spec_test
       Content-Length:
@@ -84,7 +84,7 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     http_version: 
-  recorded_at: Tue, 15 Oct 2013 15:48:01 GMT
+  recorded_at: Wed, 16 Oct 2013 10:12:02 GMT
 - request:
     method: put
     uri: https://s3.amazonaws.com/moment_display_spec_test/index.html
@@ -103,9 +103,9 @@ http_interactions:
       User-Agent:
       - aws-sdk-ruby/1.19.0 ruby/1.9.3 x86_64-darwin12.4.0
       Date:
-      - Tue, 15 Oct 2013 15:48:01 GMT
+      - Wed, 16 Oct 2013 10:12:02 GMT
       Authorization:
-      - AWS 1E06NMHHXXSKBMKFHFR2:e2S6avnmOY5FC0nNjfHF0406NDk=
+      - AWS 1E06NMHHXXSKBMKFHFR2:bDxFuqCxgKU1ZgUBiOyvbWpBsJo=
       Accept:
       - ! '*/*'
   response:
@@ -114,11 +114,11 @@ http_interactions:
       message: OK
     headers:
       X-Amz-Id-2:
-      - AN4gowMBPLv3lJSJgp4GNyyU2rqz3nXvQx+RCJuWHuDYbK1NSkUMy5HdqdPHkJl2
+      - 06M6R+srCtrqPGL9KO5eTJryGg2yfujF3M/TY0RIgg86SsaoVXzE33wH3CZbsm57
       X-Amz-Request-Id:
-      - 57F3EFF1FF13AF60
+      - E755A19DA5B4FE95
       Date:
-      - Tue, 15 Oct 2013 15:47:58 GMT
+      - Wed, 16 Oct 2013 10:12:02 GMT
       Etag:
       - ! '"b7d24a9aae245d996693f39427433c35"'
       Content-Length:
@@ -129,7 +129,7 @@ http_interactions:
       encoding: US-ASCII
       string: ''
     http_version: 
-  recorded_at: Tue, 15 Oct 2013 15:48:02 GMT
+  recorded_at: Wed, 16 Oct 2013 10:12:03 GMT
 - request:
     method: get
     uri: https://s3.amazonaws.com/moment_display_spec_test/index.html
@@ -144,9 +144,9 @@ http_interactions:
       User-Agent:
       - aws-sdk-ruby/1.19.0 ruby/1.9.3 x86_64-darwin12.4.0
       Date:
-      - Tue, 15 Oct 2013 15:48:02 GMT
+      - Wed, 16 Oct 2013 10:12:03 GMT
       Authorization:
-      - AWS 1E06NMHHXXSKBMKFHFR2:chOv8hPhJyoeEOFEqDieOuXxtXs=
+      - AWS 1E06NMHHXXSKBMKFHFR2:+WC/wuA052IMVTYkz5utO973FQE=
       Accept:
       - ! '*/*'
   response:
@@ -155,13 +155,13 @@ http_interactions:
       message: OK
     headers:
       X-Amz-Id-2:
-      - SCs4Qj7pT0sVXZL2pU3PuLmf+7z2FjM55AyulGxHOFS4itNIheECakEbGBM5rHW1
+      - 29kkQiacXyO2HAftdrYZOiA0bty7stKv132zapOIGYyNpUmMifCp8MhdhAbjEgJO
       X-Amz-Request-Id:
-      - 081C630BCEE71700
+      - 8651E4557B85B480
       Date:
-      - Tue, 15 Oct 2013 15:47:59 GMT
+      - Wed, 16 Oct 2013 10:12:03 GMT
       Last-Modified:
-      - Tue, 15 Oct 2013 15:47:58 GMT
+      - Wed, 16 Oct 2013 10:12:02 GMT
       Etag:
       - ! '"b7d24a9aae245d996693f39427433c35"'
       Accept-Ranges:
@@ -188,7 +188,7 @@ http_interactions:
 
 '
     http_version: 
-  recorded_at: Tue, 15 Oct 2013 15:48:02 GMT
+  recorded_at: Wed, 16 Oct 2013 10:12:03 GMT
 - request:
     method: get
     uri: https://s3.amazonaws.com/moment_display_spec_test?max-keys=1000&versions
@@ -203,9 +203,9 @@ http_interactions:
       User-Agent:
       - aws-sdk-ruby/1.19.0 ruby/1.9.3 x86_64-darwin12.4.0
       Date:
-      - Tue, 15 Oct 2013 15:48:02 GMT
+      - Wed, 16 Oct 2013 10:12:03 GMT
       Authorization:
-      - AWS 1E06NMHHXXSKBMKFHFR2:x7GYTk/YcHga+h89vemJ4483Q6s=
+      - AWS 1E06NMHHXXSKBMKFHFR2:HQWY6Oor8X7Kl+x/t3IFMBN412U=
       Accept:
       - ! '*/*'
   response:
@@ -214,11 +214,11 @@ http_interactions:
       message: OK
     headers:
       X-Amz-Id-2:
-      - Ao8nOuGwFNIwllcLDPCE+JVfui+haqb6iCk3vs6XA/astMydMfyHbk3WEklPE9XF
+      - WWNqL8+JB8WKyzH6mtI5Ogmrk4vP0dQ/Licjxwx9nUf5ugaSZgyRH6x62M1X48lU
       X-Amz-Request-Id:
-      - 81A29E94317FF9B4
+      - 2DDB5B02DAB128F4
       Date:
-      - Tue, 15 Oct 2013 15:47:59 GMT
+      - Wed, 16 Oct 2013 10:12:03 GMT
       Content-Type:
       - application/xml
       Transfer-Encoding:
@@ -229,9 +229,9 @@ http_interactions:
       encoding: US-ASCII
       string: ! '<?xml version="1.0" encoding="UTF-8"?>
 
-        <ListVersionsResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>moment_display_spec_test</Name><Prefix></Prefix><KeyMarker></KeyMarker><VersionIdMarker></VersionIdMarker><MaxKeys>1000</MaxKeys><IsTruncated>false</IsTruncated><Version><Key>index.html</Key><VersionId>null</VersionId><IsLatest>true</IsLatest><LastModified>2013-10-15T15:47:58.000Z</LastModified><ETag>&quot;b7d24a9aae245d996693f39427433c35&quot;</ETag><Size>65</Size><Owner><ID>5971fd6ed610857346e4457e49205351568aa62d59dcb4860b9902ae85157d5a</ID><DisplayName>david_rivas</DisplayName></Owner><StorageClass>STANDARD</StorageClass></Version></ListVersionsResult>'
+        <ListVersionsResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>moment_display_spec_test</Name><Prefix></Prefix><KeyMarker></KeyMarker><VersionIdMarker></VersionIdMarker><MaxKeys>1000</MaxKeys><IsTruncated>false</IsTruncated><Version><Key>index.html</Key><VersionId>null</VersionId><IsLatest>true</IsLatest><LastModified>2013-10-16T10:12:02.000Z</LastModified><ETag>&quot;b7d24a9aae245d996693f39427433c35&quot;</ETag><Size>65</Size><Owner><ID>5971fd6ed610857346e4457e49205351568aa62d59dcb4860b9902ae85157d5a</ID><DisplayName>david_rivas</DisplayName></Owner><StorageClass>STANDARD</StorageClass></Version></ListVersionsResult>'
     http_version: 
-  recorded_at: Tue, 15 Oct 2013 15:48:03 GMT
+  recorded_at: Wed, 16 Oct 2013 10:12:04 GMT
 - request:
     method: post
     uri: https://s3.amazonaws.com/moment_display_spec_test?delete
@@ -251,9 +251,9 @@ http_interactions:
       User-Agent:
       - aws-sdk-ruby/1.19.0 ruby/1.9.3 x86_64-darwin12.4.0
       Date:
-      - Tue, 15 Oct 2013 15:48:03 GMT
+      - Wed, 16 Oct 2013 10:12:04 GMT
       Authorization:
-      - AWS 1E06NMHHXXSKBMKFHFR2:VUjjZL0aveooC2ZDt9J2uXDbav0=
+      - AWS 1E06NMHHXXSKBMKFHFR2:Y1FpX1WrPXHzv24gYlHHSJo8qGc=
       Accept:
       - ! '*/*'
   response:
@@ -262,11 +262,11 @@ http_interactions:
       message: OK
     headers:
       X-Amz-Id-2:
-      - ZR8N/gGp07X4E6jHbUAC7wwwpgjVJCW0vHZrAXHqgQB8tvGq/SU5s0a/NCQbYlX9
+      - n2d0lEuOWCunxBW3sA46qFfsvFCtOW90qrAYsMTenieLFBXYU8x0/44wUuck3twv
       X-Amz-Request-Id:
-      - FEDD94F45DCF4E69
+      - 54206F139F3D46E2
       Date:
-      - Tue, 15 Oct 2013 15:48:00 GMT
+      - Wed, 16 Oct 2013 10:12:04 GMT
       Content-Type:
       - application/xml
       Transfer-Encoding:
@@ -279,7 +279,7 @@ http_interactions:
 
         <DeleteResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"></DeleteResult>'
     http_version: 
-  recorded_at: Tue, 15 Oct 2013 15:48:03 GMT
+  recorded_at: Wed, 16 Oct 2013 10:12:04 GMT
 - request:
     method: delete
     uri: https://s3.amazonaws.com/moment_display_spec_test
@@ -294,9 +294,9 @@ http_interactions:
       User-Agent:
       - aws-sdk-ruby/1.19.0 ruby/1.9.3 x86_64-darwin12.4.0
       Date:
-      - Tue, 15 Oct 2013 15:48:03 GMT
+      - Wed, 16 Oct 2013 10:12:04 GMT
       Authorization:
-      - AWS 1E06NMHHXXSKBMKFHFR2:/OhR995ySA1rM3gnDXv8XnUPVHA=
+      - AWS 1E06NMHHXXSKBMKFHFR2:iQE7fjV24P6hKL1NcvI1BulXFZE=
       Accept:
       - ! '*/*'
   response:
@@ -305,16 +305,16 @@ http_interactions:
       message: No Content
     headers:
       X-Amz-Id-2:
-      - LWQn/lZN+2DGwM7KnWzSfDQSk9rU+5tB+zGQKQlD/Bun+LnIze/IBIJEDluhjWDU
+      - NlzFpfN450GIfROJRGm7JisLCGViuZfq3FQ2goHslzCEXZEc5jB0mSj79+L7pMKh
       X-Amz-Request-Id:
-      - EC89AB31102CA5B7
+      - A2EE5B414FB0B5DF
       Date:
-      - Tue, 15 Oct 2013 15:48:00 GMT
+      - Wed, 16 Oct 2013 10:12:04 GMT
       Server:
       - AmazonS3
     body:
       encoding: US-ASCII
       string: ''
     http_version: 
-  recorded_at: Tue, 15 Oct 2013 15:48:04 GMT
+  recorded_at: Wed, 16 Oct 2013 10:12:05 GMT
 recorded_with: VCR 2.5.0
