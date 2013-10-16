@@ -70,7 +70,7 @@ module Moment
 			last_commit_id = local_repo.last_commit.oid
 			set_current_commit_id(last_commit_id)
 
-      # TODO: Implement puts and delete files.
+      # TODO: Implement copy and delete files.
 			deltas = local_repo.diff(old_commit_id, last_commit_id).deltas
 			update_endpoint(deltas)
 
@@ -99,6 +99,7 @@ module Moment
 		end
 
 		def update_endpoint(deltas)
+
 			unless silent
 				puts "There are #{deltas.size} update."
 				if old_commit_id.nil?
@@ -112,33 +113,51 @@ module Moment
 				end
 			end
 
-			deltas.each { |d|update_endpoint_with_delta(d)}
+			# deltas.each { |d|update_endpoint_with_delta(d)}
+      copy_files(get_files_to_copy(deltas))
+      delete_files(get_files_delete(deltas))
 		end
 
-		def update_endpoint_with_delta(delta)
-			put_files = []
-			remove_files = []
-			case delta.status
-			when :added
-				put_files << delta.old_file[:path]
-			when :deleted
-				remove_files << delta.old_file[:path]
-			when :modified
-				put_files << delta.old_file[:path]
-			when :renamed
-				put_files << delta.new_file[:path]
-				remove_files << delta.old_file[:path]
-			when :copied
-				put_files << delta.new_file[:path]
-			when :ignored
-			when :untracked
-				remove_files << delta.old_file[:path]
-			when :typechange?
-			end
+    def get_files_to_copy(deltas)
+      files =[]
+      deltas.each do |delta|
+        case delta.status
+        when :added
+          files << delta.old_file[:path]
+        when :deleted
+        when :modified
+          files << delta.old_file[:path]
+        when :renamed
+          files << delta.new_file[:path]
+        when :copied
+          files << delta.new_file[:path]
+        when :ignored
+        when :untracked
+        when :typechange?
+        end
+      end
+      return files
+    end
 
-			copy_files(put_files)
-			delete_files(remove_files)
-		end
+    def get_files_delete(deltas)
+      files = []
+      deltas.each do |delta|
+        case delta.status
+        when :added
+        when :deleted
+          files << delta.old_file[:path]
+        when :modified
+        when :renamed
+          files << delta.old_file[:path]
+        when :copied
+        when :ignored
+        when :untracked
+          files << delta.old_file[:path]
+        when :typechange?
+        end
+      end
+      return files
+    end
 
 		def copy_files(files)
       puts "copying #{files.size} files to the endpoint."
